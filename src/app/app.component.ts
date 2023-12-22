@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { AccountService } from '../generated/services';
 
 @Component({
   selector: 'app-root',

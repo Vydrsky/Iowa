@@ -1,0 +1,9 @@
+/* tslint:disable */
+/* eslint-disable */
+export interface AuthenticationResponse {
+  accountId?: string;
+  gameId?: string;
+  id?: string;
+  token?: string | null;
+  userCode?: string | null;
+}
