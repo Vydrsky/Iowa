@@ -2,13 +2,13 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
     {
-        path: '',
+        path: 'login',
         loadComponent: () => 
-            import('./app.component').then(c => c.AppComponent),
+            import('./login/login.component').then(c => c.LoginComponent),
     },
     {
         path: '**',
         pathMatch: 'full',
-        redirectTo: ''
+        redirectTo: 'login'
     }
 ];
