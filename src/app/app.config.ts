@@ -6,6 +6,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 import { ApiModule } from '../generated/api.module';
 import { HttpErrorInterceptor } from './common/interceptors/http-error.interceptor';
 import { provideToastr } from 'ngx-toastr';
+import { JwtTokenInterceptor } from './common/interceptors/jwt-token.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,6 +18,11 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpErrorInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtTokenInterceptor,
       multi: true
     },
     importProvidersFrom(ApiModule.forRoot({ rootUrl: "https://localhost:8000" })),
