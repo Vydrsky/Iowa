@@ -19,7 +19,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
             });
             return throwError(message);
           }
-          return throwError([err.error]);
+          return throwError("Coś poszło nie tak, proszę spróbować później.");
         })
       );
   }
