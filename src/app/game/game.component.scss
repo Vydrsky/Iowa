@@ -37,6 +37,11 @@
       height: fit-content;
   }
 
+  .rules-footer {
+    display: flex;
+    justify-content: start;
+    gap: 16px;
+  }
 
   /* 2xl */
   @media (max-width: 1536px) {
