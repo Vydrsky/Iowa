@@ -4,6 +4,13 @@ body {
     background: url("/assets/zig-zag.svg");
 }
 
+img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+  }
+
 .padded {
     padding: 16px;
 }

@@ -1,4 +1,4 @@
-<div class="card" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
-    <img class="card-image" mat-card-image [src]="source">
+<div class="card" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()" (click)="cardClicked()"> 
+    <img class="card-image" mat-card-image [src]="imageSource">
     <div [class]="hoverBackground"></div>
 </div>

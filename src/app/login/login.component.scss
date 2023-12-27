@@ -4,7 +4,7 @@
   }
 
   .login-form {
-    margin: 128px 128px;
+    margin: 128px 256px;
     display: flex;
     justify-content: center;
   }
@@ -15,6 +15,7 @@
 
   .login-form-card {
     padding: 24px 32px;
+    flex-grow: 1;
   }
   
   /* 2xl */
@@ -29,14 +30,14 @@
   
   /* lg */
   @media (max-width: 1024px) {
-    
+    .login-form {
+      margin: 64px 64px;
+    }
   }
   
   /* md */
   @media (max-width: 768px) {
-    .login-form {
-      margin: 64px 64px;
-    }
+    
   }
   
   /* sm */

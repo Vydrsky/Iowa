@@ -2,9 +2,12 @@ import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import {MatInputModule} from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import {MatIconModule} from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-evaluations',
@@ -15,7 +18,8 @@ import {MatIconModule} from '@angular/material/icon';
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
-    MatIconModule
+    MatIconModule,
+    FormsModule
   ],
   templateUrl: './evaluations.component.html',
   styleUrl: './evaluations.component.scss'
@@ -91,7 +95,26 @@ export class EvaluationsComponent implements AfterViewInit {
 
   public displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
 
+  public searchInput: string = '';
+
+  constructor(private router: Router, private cookieService: CookieService) {}
+  
   ngAfterViewInit(): void {
     this.evaluationDataSource.paginator = this.paginator;
-    }
+  }
+
+  logout() {
+    this.cookieService.deleteAll();
+    this.router.navigate(['login']);
+    localStorage.clear();
+  }
+
+  filterData(data: any[]): any[] {
+    if(!this.searchInput) return data;
+    return data.filter(el => el.name.toLowerCase().includes(this.searchInput));
+  }
+
+  applyFilter() {
+    this.evaluationDataSource.data = this.filterData(this.evaluationData);
+  }
 }

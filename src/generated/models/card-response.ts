@@ -3,8 +3,8 @@
 import { CardType } from '../models/card-type';
 export interface CardResponse {
   punishmentPercentChance?: number;
-  punishmentValue?: number;
-  result?: number;
+  punishmentValueLower?: number;
+  punishmentValueUpper?: number;
   rewardValue?: number;
   type?: CardType;
 }

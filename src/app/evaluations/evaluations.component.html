@@ -1,5 +1,5 @@
 <div class="header">
-    <button mat-raised-button>Powrót do logowania</button>
+    <button mat-raised-button (click)="logout()">Powrót do logowania</button>
     <div class="header-text">
         <h1><b>Wyniki Badań:</b></h1>
     </div>
@@ -7,7 +7,7 @@
 <div class="evaluations-table">
     <div class="table-header">
         <mat-form-field class="table-search">
-            <input matInput>
+            <input matInput type="text" [(ngModel)]="searchInput" (ngModelChange)="applyFilter()">
             <mat-icon matSuffix fontIcon="search"></mat-icon>
         </mat-form-field>
         <mat-paginator #paginatorTop [length]="100" [pageSize]="20" [pageSizeOptions]="[5, 10, 20]"

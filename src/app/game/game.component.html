@@ -19,8 +19,8 @@
         <mat-card>
             <mat-card-content>
                 <div class="responsive-grid">
-                    <ng-container *ngFor="let cardImageSource of cardImageSources">
-                        <app-card [source]="cardImageSource">
+                    <ng-container *ngFor="let card of (gameSubject | async)!.cards">
+                        <app-card [imageSource]="cardImageSources[card.type!]" [cardData]="card" (addRound)="addRound($event)">
                         </app-card>
                     </ng-container>
                 </div>
@@ -38,7 +38,7 @@
                 <mat-divider></mat-divider>
             </mat-card-content>
             <mat-card-footer class="padded rules-footer">
-                <button mat-raised-button color="secondary">Powrót do logowania</button>
+                <button mat-raised-button color="secondary" (click)="logout()">Powrót do logowania</button>
                 <button mat-raised-button color="secondary">Zrestartuj Grę</button>
             </mat-card-footer>
         </mat-card>

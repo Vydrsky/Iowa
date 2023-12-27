@@ -32,8 +32,6 @@ export class LoginComponent implements OnInit {
 
   public loginForm: FormGroup;
 
-  private login$ = new BehaviorSubject<AuthenticationResponse>({});
-
   constructor(
     private formBuilder: FormBuilder,
     private authenticationService: AuthService,
@@ -58,11 +56,13 @@ export class LoginComponent implements OnInit {
     }).pipe(
       take(1),
       tap(response => {
-        this.cookieService.set('token', response.token ?? "");
-        this.cookieService.set('userCode', response.userCode ?? "");
-        this.router.navigateByUrl('game');
+        this.configureCookiesAndRoute(response);
       })).subscribe({
-          next: response => this.login$.next(response),
+          next: response => {
+            localStorage.setItem('userId', response.id!);
+            localStorage.setItem('gameId', response.gameId!);
+            localStorage.setItem('accountId', response.accountId!);
+          },
           error: (err: string) => {
             console.log(err);
             this.toastrService.error(err, '', {
@@ -70,6 +70,23 @@ export class LoginComponent implements OnInit {
             });
           }
         });
+  }
+
+  configureCookiesAndRoute(response: AuthenticationResponse) {
+    this.cookieService.set('token', response.token ?? "");
+    this.cookieService.set('userCode', response.userCode ?? "");
+
+    if (response.isAdmin){
+      this.cookieService.set('admin', '1');
+      this.router.navigate(['evaluations']);
+    }
+    else if(response.isArchived) {
+      this.cookieService.set('archived', '1');
+      this.router.navigate(['summary'])
+    }
+    else{
+      this.router.navigate(['game']);
+    }
   }
 }
 

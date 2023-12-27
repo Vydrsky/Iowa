@@ -1,5 +1,6 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { CardRequest, CardResponse } from '../../../generated/models';
 @Component({
   selector: 'app-card',
   standalone: true,
@@ -8,15 +9,24 @@ import { MatCardModule } from '@angular/material/card';
   styleUrl: './card.component.scss'
 })
 export class CardComponent {
-   @Input() source: string;
+  @Input() imageSource: string;
 
-   public hoverBackground: string = ''
+  @Input() cardData: CardResponse;
 
-   public  onMouseEnter(){
-      this.hoverBackground = 'hover-bg'
-   }
-   
-   public onMouseLeave(){
+  @Output() addRound = new EventEmitter<CardRequest>()
+
+  public hoverBackground: string = ''
+
+  public onMouseEnter() {
+    this.hoverBackground = 'hover-bg'
+  }
+
+  public onMouseLeave() {
     this.hoverBackground = ''
- }
+  }
+
+  public cardClicked() {
+    console.log('clicked');
+    this.addRound.emit(this.cardData);
+  }
 }
