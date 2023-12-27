@@ -1,1 +1,29 @@
-<p>game works!</p>
+<section>
+    <div class="account">
+        <mat-card>
+            <mat-card-content>
+                <div class="account-header">
+                    <h1>Stan Konta: 2000</h1>
+                </div>
+                <div class="account-bar-values">
+                    <p><b>0$</b></p>
+                    <p><b>4000$</b></p>
+                </div>
+                <mat-progress-bar mode="determinate" value="50" color="primary">
+                </mat-progress-bar>
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div class="cards">
+        <mat-card>
+            <mat-card-content>
+                <div class="responsive-grid">
+                    <ng-container *ngFor="let cardImageSource of cardImageSources">
+                        <app-card [source]="cardImageSource">
+                        </app-card>
+                    </ng-container>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</section>
