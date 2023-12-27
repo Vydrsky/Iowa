@@ -5,7 +5,8 @@
 
   .account-header {
       display: flex;
-      justify-content: center;
+      align-items: center;
+      flex-direction: column;
   }
 
   .responsive-grid {
@@ -16,8 +17,22 @@
   }
 
   .account {
-      margin: 128px 128px;
+      margin: 40px 0;
   }
+
+  .subcontent {
+    display:flex;
+    margin: 40px 0;
+    gap: 40px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .subcontent-element {
+    flex-grow: 1;
+  }
+
+
 
   /* 2xl */
   @media (max-width: 1536px) {
@@ -43,7 +58,7 @@
   /* md */
   @media (max-width: 768px) {
       .account {
-          margin: 64px 64px;
+          margin: 64px 0;
       }
 
       .responsive-grid {
@@ -65,7 +80,7 @@
   /* xs */
   @media (max-width: 475px) {
       .account {
-          margin: 0 0;
+          margin: 32px 0;
       }
       .responsive-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

@@ -1,9 +1,12 @@
 body {
     margin: 0;
     font-family: Roboto, "Helvetica Neue", sans-serif;
-    background: url("/assets/large-triangles.svg");
-    background-size: cover;
+    background: url("/assets/zig-zag.svg");
 }
+
+.padded {
+    padding: 16px;
+  }
 
 .container {
     max-width: 1536px;
