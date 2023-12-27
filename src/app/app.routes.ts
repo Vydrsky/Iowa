@@ -12,6 +12,16 @@ export const routes: Routes = [
             import('./game/game.component').then(c => c.GameComponent),
     },
     {
+        path: 'summary',
+        loadComponent: () => 
+            import('./summary/summary.component').then(c => c.SummaryComponent),
+    },
+    {
+        path: 'evaluations',
+        loadComponent: () => 
+            import('./evaluations/evaluations.component').then(c => c.EvaluationsComponent),
+    },
+    {
         path: '**',
         pathMatch: 'full',
         redirectTo: 'login'

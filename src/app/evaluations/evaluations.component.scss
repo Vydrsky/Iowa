@@ -1,0 +1,50 @@
+.header {
+    margin: 32px 0;
+    display: inline-flex;
+    gap: 16px;
+
+}
+
+.header-text {
+    color: white;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.evaluations-table {
+    margin: 40px 0;
+    display:flex;
+    flex-direction: column;
+    gap: 24px;
+    background-color: white;
+    padding: 24px;
+}
+
+.table-header{
+    padding: 16px;
+    display: flex;
+    justify-content: end;
+    flex-wrap: wrap;
+    gap: 32px;
+}
+
+.table-search {
+    flex-grow: 1;
+}
+
+/* 2xl */
+@media (max-width: 1536px) {}
+
+/* xl */
+@media (max-width: 1280px) {}
+
+/* lg */
+@media (max-width: 1024px) {}
+
+/* md */
+@media (max-width: 768px) {}
+
+/* sm */
+@media (max-width: 640px) {}
+
+/* xs */
+@media (max-width: 475px) {}
