@@ -21,17 +21,21 @@
   }
 
   .subcontent {
-    display:flex;
-    margin: 40px 0;
-    gap: 40px;
-    justify-content: space-between;
-    flex-wrap: wrap;
+      display: flex;
+      margin: 40px 0;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
   }
 
-  .subcontent-element {
-    flex-grow: 1;
+  .subcontent-table {
+      flex-grow: 1;
+      height: fit-content;
   }
 
+  .subcontent-rules {
+      height: fit-content;
+  }
 
 
   /* 2xl */
@@ -73,8 +77,8 @@
       }
 
       .responsive-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    }
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
   }
 
   /* xs */
@@ -82,7 +86,8 @@
       .account {
           margin: 32px 0;
       }
+
       .responsive-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
+          grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
   }
