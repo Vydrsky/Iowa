@@ -4,7 +4,7 @@ import { AdminGuard } from './common/guards/admin.guard';
 import { LoggedInGuard } from './common/guards/logged-in.guard';
 import { GameEndedGuard } from './common/guards/game-ended.guard';
 import { GameContinuedGuard } from './common/guards/game-continued.guard';
-import { GameCookiesGuard } from './common/guards/game-cookies.guard';
+import { CookiesGuard } from './common/guards/cookies.guard';
 
 export const routes: Routes = [
     {
@@ -17,13 +17,13 @@ export const routes: Routes = [
         path: 'game',
         loadComponent: () => 
             import('./game/game.component').then(c => c.GameComponent),
-        canActivate: [LoginGuard, GameContinuedGuard, GameCookiesGuard]
+        canActivate: [LoginGuard, GameContinuedGuard, CookiesGuard]
     },
     {
         path: 'summary',
         loadComponent: () => 
             import('./summary/summary.component').then(c => c.SummaryComponent),
-        canActivate: [LoginGuard, GameEndedGuard]
+        canActivate: [LoginGuard, GameEndedGuard, CookiesGuard]
     },
     {
         path: 'evaluations',

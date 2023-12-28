@@ -7,8 +7,6 @@ export const GameEndedGuard: CanActivateFn = (route, state) => {
   if (gameEnded) {
     return true;
   }
-  else {
-    inject(Router).navigate(['game']);
-    return false;
-  }
+  inject(Router).navigate(['game']);
+  return false;
 };

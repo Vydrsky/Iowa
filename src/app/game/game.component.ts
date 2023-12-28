@@ -134,6 +134,14 @@ export class GameComponent implements AfterContentInit, OnInit {
       });
   }
 
+  restartGame() {
+    this.gameService.restartGame({
+      id: this.cookieService.get('gameId')
+    }).pipe(take(1)).subscribe(response => {
+      this.updateState();
+    });
+  }
+
   updateState() {
     this.getGame$.subscribe(response => {
       this.gameSubject.next(response);
