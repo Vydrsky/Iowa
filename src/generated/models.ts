@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AccountResponse } from './models/account-response';
+export { AddNewRoundResponse } from './models/add-new-round-response';
 export { AddNewRoundToGameRequest } from './models/add-new-round-to-game-request';
 export { AuthenticateRequest } from './models/authenticate-request';
 export { AuthenticationResponse } from './models/authentication-response';

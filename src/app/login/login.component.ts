@@ -59,9 +59,9 @@ export class LoginComponent implements OnInit {
         this.configureCookiesAndRoute(response);
       })).subscribe({
           next: response => {
-            localStorage.setItem('userId', response.id!);
-            localStorage.setItem('gameId', response.gameId!);
-            localStorage.setItem('accountId', response.accountId!);
+            this.cookieService.set('userId', response.id!);
+            this.cookieService.set('gameId', response.gameId!);
+            this.cookieService.set('accountId', response.accountId!);
           },
           error: (err: string) => {
             console.log(err);

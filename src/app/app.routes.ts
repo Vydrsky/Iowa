@@ -3,6 +3,8 @@ import { LoginGuard } from './common/guards/login.guard';
 import { AdminGuard } from './common/guards/admin.guard';
 import { LoggedInGuard } from './common/guards/logged-in.guard';
 import { GameEndedGuard } from './common/guards/game-ended.guard';
+import { GameContinuedGuard } from './common/guards/game-continued.guard';
+import { GameCookiesGuard } from './common/guards/game-cookies.guard';
 
 export const routes: Routes = [
     {
@@ -15,7 +17,7 @@ export const routes: Routes = [
         path: 'game',
         loadComponent: () => 
             import('./game/game.component').then(c => c.GameComponent),
-        canActivate: [LoginGuard]
+        canActivate: [LoginGuard, GameContinuedGuard, GameCookiesGuard]
     },
     {
         path: 'summary',

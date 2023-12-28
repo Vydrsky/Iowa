@@ -10,7 +10,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
       .pipe(
         catchError((err: HttpErrorResponse) => {
           console.log(err.error);
-          if(err.error.errors !== undefined) {
+          if(err.error?.errors !== undefined) {
             let message = '';
             Object.keys(err.error.errors).forEach((key) => {
               err.error.errors[key].forEach((msg: string) =>{

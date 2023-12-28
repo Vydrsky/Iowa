@@ -9,6 +9,7 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
+import { AddNewRoundResponse } from '../models/add-new-round-response';
 import { addNewRoundToGame } from '../fn/game/add-new-round-to-game';
 import { AddNewRoundToGame$Params } from '../fn/game/add-new-round-to-game';
 import { GameResponse } from '../models/game-response';
@@ -102,7 +103,7 @@ export class GameService extends BaseService {
    *
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
-  addNewRoundToGame$Response(params?: AddNewRoundToGame$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  addNewRoundToGame$Response(params?: AddNewRoundToGame$Params, context?: HttpContext): Observable<StrictHttpResponse<AddNewRoundResponse>> {
     return addNewRoundToGame(this.http, this.rootUrl, params, context);
   }
 
@@ -116,9 +117,9 @@ export class GameService extends BaseService {
    *
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
-  addNewRoundToGame(params?: AddNewRoundToGame$Params, context?: HttpContext): Observable<void> {
+  addNewRoundToGame(params?: AddNewRoundToGame$Params, context?: HttpContext): Observable<AddNewRoundResponse> {
     return this.addNewRoundToGame$Response(params, context).pipe(
-      map((r: StrictHttpResponse<void>): void => r.body)
+      map((r: StrictHttpResponse<AddNewRoundResponse>): AddNewRoundResponse => r.body)
     );
   }
 

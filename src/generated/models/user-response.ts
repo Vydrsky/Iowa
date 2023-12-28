@@ -5,5 +5,6 @@ export interface UserResponse {
   gameId?: string;
   id?: string;
   isAdmin?: boolean;
+  isArchived?: boolean;
   userCode?: string | null;
 }
