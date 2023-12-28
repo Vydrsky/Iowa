@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AuthService } from '../../generated/services';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import { BehaviorSubject,debounce,interval,take, tap, } from 'rxjs';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { BehaviorSubject, debounce, interval, take, tap, } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
 import { AuthenticationResponse } from '../../generated/models';
@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
-      userCode: ['', {validators: [Validators.required, Validators.minLength(5)], updateOn: "blur"}]
+      userCode: ['', { validators: [Validators.required, Validators.minLength(5)], updateOn: "blur" }]
     });
   }
 
@@ -54,37 +54,36 @@ export class LoginComponent implements OnInit {
         userCode: this.loginForm.value['userCode']
       }
     }).pipe(
-      take(1),
-      tap(response => {
-        this.configureCookiesAndRoute(response);
-      })).subscribe({
-          next: response => {
-            this.cookieService.set('userId', response.id!);
-            this.cookieService.set('gameId', response.gameId!);
-            this.cookieService.set('accountId', response.accountId!);
-          },
-          error: (err: string) => {
-            console.log(err);
-            this.toastrService.error(err, '', {
-              positionClass: 'toast-bottom-right'
-            });
-          }
-        });
+      take(1)
+      ).subscribe({
+        next: response => {
+          this.configureCookiesAndRoute(response);
+        },
+        error: (err: string) => {
+          console.log(err);
+          this.toastrService.error(err, '', {
+            positionClass: 'toast-bottom-right'
+          });
+        }
+      });
   }
 
   configureCookiesAndRoute(response: AuthenticationResponse) {
     this.cookieService.set('token', response.token ?? "");
     this.cookieService.set('userCode', response.userCode ?? "");
+    this.cookieService.set('userId', response.id ?? "");
+    this.cookieService.set('gameId', response.gameId ?? "");
+    this.cookieService.set('accountId', response.accountId ?? "");
 
-    if (response.isAdmin){
+    if (response.isAdmin) {
       this.cookieService.set('admin', '1');
       this.router.navigate(['evaluations']);
     }
-    else if(response.isArchived) {
+    else if (response.isArchived) {
       this.cookieService.set('archived', '1');
       this.router.navigate(['summary'])
     }
-    else{
+    else {
       this.router.navigate(['game']);
     }
   }

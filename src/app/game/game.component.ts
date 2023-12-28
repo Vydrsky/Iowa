@@ -67,14 +67,9 @@ export class GameComponent implements AfterContentInit, OnInit {
     private router: Router,
     private cookieService: CookieService,
     private gameService: GameService,
-    private accountService: AccountService,
-    private userService: UserService) { }
+    private accountService: AccountService) { }
 
   ngOnInit(): void {
-    if (this.isUserArchived()) {
-      this.router.navigate(['summary']);
-    }
-
     var gameId = this.cookieService.get('gameId');
     var accountId = this.cookieService.get('accountId');
 
@@ -110,18 +105,6 @@ export class GameComponent implements AfterContentInit, OnInit {
     this.cookieService.deleteAll();
     this.router.navigate(['login']);
     this.cookieService.deleteAll();
-  }
-
-  isUserArchived(): boolean {
-    var userId = this.cookieService.get('userId');
-    var archived = true;
-    this.userService
-      .getUser({ id: userId})
-      .pipe(take(1))
-      .subscribe(response => {
-        archived = response?.isArchived ?? true;
-      })
-    return archived;
   }
 
   addRound(cardRequest: CardRequest) {
