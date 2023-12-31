@@ -20,20 +20,21 @@
             <th mat-header-cell *matHeaderCellDef>Id badania:</th>
             <td mat-cell *matCellDef="let element"> {{element.id}} </td>
         </ng-container>
-
         <ng-container matColumnDef="userCode">
             <th mat-header-cell *matHeaderCellDef>Kod użytkownika:</th>
             <td mat-cell *matCellDef="let element"> {{element.userCode}} </td>
         </ng-container>
-
         <ng-container matColumnDef="balance">
             <th mat-header-cell *matHeaderCellDef>Ostateczny stan konta:</th>
             <td mat-cell *matCellDef="let element"> {{element.balance}} </td>
         </ng-container>
-
         <ng-container matColumnDef="evaluationDate">
             <th mat-header-cell *matHeaderCellDef>Data przeprowadzenia badania:</th>
             <td mat-cell *matCellDef="let element"> {{element.evaluationDate | date}} </td>
+        </ng-container>
+        <ng-container matColumnDef="isPassed">
+            <th mat-header-cell *matHeaderCellDef>Wynik Badania:</th>
+            <td mat-cell *matCellDef="let element"> {{element.isPassed ? 'Pozytywny' : 'Negatywny'}} </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

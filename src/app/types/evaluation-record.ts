@@ -3,4 +3,5 @@ export default class EvaluationRecord{
     userCode: string;
     balance: number;
     evaluationDate: string;
+    isPassed: boolean;
 }

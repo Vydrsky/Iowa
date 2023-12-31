@@ -41,7 +41,7 @@ export class EvaluationsComponent implements AfterContentInit {
 
   private evaluationsSubject = new BehaviorSubject<EvaluationRecord[]>([]);
 
-  public displayedColumns: string[] = ['id', 'userCode', 'balance', 'evaluationDate'];
+  public displayedColumns: string[] = ['id', 'userCode', 'balance', 'evaluationDate', 'isPassed'];
 
   public searchInput: string = '';
 
@@ -64,7 +64,7 @@ export class EvaluationsComponent implements AfterContentInit {
             .push(this.userService
                 .getUser({ id: evaluation.userId ?? '' })
                 .pipe(map((user) => {
-                  return { userCode: user.userCode, evaluationDate: evaluation.evaluationDate, id: evaluation.id, accountId: user.accountId }
+                  return { userCode: user.userCode, evaluationDate: evaluation.evaluationDate, id: evaluation.id, accountId: user.accountId, isPassed: evaluation.isPassed }
                 })))
         })
         return combineLatest(evaluationsWithUsers);
@@ -80,7 +80,8 @@ export class EvaluationsComponent implements AfterContentInit {
                   balance: account.balance ?? 0,
                   id: evaluationWithUsers.id,
                   userCode: evaluationWithUsers.userCode,
-                  evaluationDate: evaluationWithUsers.evaluationDate
+                  evaluationDate: evaluationWithUsers.evaluationDate,
+                  isPassed: evaluationWithUsers.isPassed,
                 }
               })));
         })
