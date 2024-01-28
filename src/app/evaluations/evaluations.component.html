@@ -14,26 +14,26 @@
             (page)="paginatorBottom.pageIndex = $event.pageIndex; paginatorBottom.pageSize = $event.pageSize;">
         </mat-paginator>
     </div>
-    <table mat-table [dataSource]="(evaluationTableDataSource$ | async)!">
+    <table mat-table [dataSource]="(evaluationTableDataSource$ | async)!" matSort>
 
         <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef>Id badania:</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Id badania:</th>
             <td mat-cell *matCellDef="let element"> {{element.id}} </td>
         </ng-container>
         <ng-container matColumnDef="userCode">
-            <th mat-header-cell *matHeaderCellDef>Kod użytkownika:</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Kod użytkownika:</th>
             <td mat-cell *matCellDef="let element"> {{element.userCode}} </td>
         </ng-container>
         <ng-container matColumnDef="balance">
-            <th mat-header-cell *matHeaderCellDef>Ostateczny stan konta:</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Ostateczny stan konta:</th>
             <td mat-cell *matCellDef="let element"> {{element.balance}} </td>
         </ng-container>
         <ng-container matColumnDef="evaluationDate">
-            <th mat-header-cell *matHeaderCellDef>Data przeprowadzenia badania:</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Data przeprowadzenia badania:</th>
             <td mat-cell *matCellDef="let element"> {{element.evaluationDate | date:'medium'}} </td>
         </ng-container>
         <ng-container matColumnDef="isPassed">
-            <th mat-header-cell *matHeaderCellDef>Wynik Badania:</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Wynik Badania:</th>
             <td mat-cell *matCellDef="let element"> {{element.isPassed ? 'Pozytywny' : 'Negatywny'}} </td>
         </ng-container>
 

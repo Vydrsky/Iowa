@@ -12,7 +12,8 @@ import { BehaviorSubject, Observable, combineLatest, concatMap, map, of, take } 
 import { AccountService, EvaluationService, UserService } from '../../generated/services';
 import EvaluationRecord from '../types/evaluation-record';
 import { AsyncPipe, DatePipe, registerLocaleData } from '@angular/common';
-import localePl from '@angular/common/locales/pl'
+import localePl from '@angular/common/locales/pl';
+import {MatSort, MatSortModule} from '@angular/material/sort';
 registerLocaleData(localePl);
 
 @Component({
@@ -27,7 +28,8 @@ registerLocaleData(localePl);
     MatIconModule,
     FormsModule,
     AsyncPipe,
-    DatePipe
+    DatePipe,
+    MatSortModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "pl-PL" }
@@ -38,7 +40,8 @@ registerLocaleData(localePl);
 export class EvaluationsComponent implements AfterContentInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
-
+  @ViewChild(MatSort) sort: MatSort;
+  
   private evaluationsSubject = new BehaviorSubject<EvaluationRecord[]>([]);
 
   public displayedColumns: string[] = ['id', 'userCode', 'balance', 'evaluationDate', 'isPassed'];
@@ -96,6 +99,7 @@ export class EvaluationsComponent implements AfterContentInit {
       const source = new MatTableDataSource<EvaluationRecord>();
       source.data = evaluationRecords;
       source.paginator = this.paginator;
+      source.sort = this.sort;
       return source;
     }))
   }
