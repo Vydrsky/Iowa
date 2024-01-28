@@ -1,4 +1,5 @@
 <div class="card" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()" (click)="cardClicked()"> 
     <img class="card-image" mat-card-image [src]="imageSource">
     <div [class]="hoverBackground"></div>
+    <div class="letter">{{cardData.type! | cardType}}</div>
 </div>

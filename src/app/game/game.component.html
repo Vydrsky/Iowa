@@ -52,21 +52,30 @@
             </mat-expansion-panel-header>
             <ng-container *ngIf="(roundTableDataSource$ | async)?.data?.length !== 0">
                 <table mat-table [dataSource]="(roundTableDataSource$ | async)!">
+
                     <ng-container matColumnDef="roundNumber">
                         <th mat-header-cell *matHeaderCellDef>Numer Rundy:</th>
                         <td mat-cell *matCellDef="let element"> {{element.roundNumber}} </td>
                     </ng-container>
+
                     <ng-container matColumnDef="previousBalance">
                         <th mat-header-cell *matHeaderCellDef>Poprzedni stan konta:</th>
                         <td mat-cell *matCellDef="let element"> {{element.previousBalance}} </td>
                     </ng-container>
+
                     <ng-container matColumnDef="total">
                         <th mat-header-cell *matHeaderCellDef>Stan po zmianie:</th>
                         <td mat-cell *matCellDef="let element"> {{element.total}} </td>
                     </ng-container>
+
                     <ng-container matColumnDef="change">
                         <th mat-header-cell *matHeaderCellDef>Wartość zmiany:</th>
                         <td mat-cell *matCellDef="let element"> {{element.total - element.previousBalance}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="type">
+                        <th mat-header-cell *matHeaderCellDef>Rodzaj wybranej karty:</th>
+                        <td mat-cell *matCellDef="let element"> {{element.type | cardType}} </td>
                     </ng-container>
 
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

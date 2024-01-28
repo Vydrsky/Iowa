@@ -1,7 +1,6 @@
 <mat-card class="summary">
     <mat-card-content >
         <h1>Dziękujemy za wzięcie udziału w badaniu.</h1>
-        <h2>Wynik twojego podejścia został uznany za: <span [style]="(passed | async) ? 'color:green;' : 'color:red;'">{{(passed | async) ? 'POZYTYWNY' : 'NEGATYWNY'}}</span></h2>
-        <h2>Końcowy stan konta: {{(balance | async)}}</h2>
+        <h2>Ostateczny stan konta: {{(balance | async)}}</h2>
     </mat-card-content>
 </mat-card>

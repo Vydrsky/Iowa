@@ -30,19 +30,18 @@ export class SummaryComponent implements OnInit {
 
   constructor(
     private evaluationService: EvaluationService, 
-    private cookieService: CookieService,
     private accountService: AccountService) {}
 
   ngOnInit(): void {
     this.evaluationService.getAllEvaluations().pipe(
       take(1),
-      map(response => response.find(e => e.userId == this.cookieService.get('userId'))?.isPassed ?? false)
+      map(response => response.find(e => e.userId == sessionStorage.getItem('userId'))?.isPassed ?? false)
       ).subscribe(response => {
       this.evaluationsSubject.next(response);
     });
 
     this.accountService.getAccount({
-      id: this.cookieService.get('accountId')
+      id: sessionStorage.getItem('accountId') ?? ""
     }).pipe(
       take(1),
       map(response => response.balance ?? 0)

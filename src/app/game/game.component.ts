@@ -15,26 +15,28 @@ import { BehaviorSubject, Observable, debounce, debounceTime, distinctUntilChang
 import { NormalizeNumberPipe } from '../common/pipes/normalize-number.pipe';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { RulesComponent } from '../common/dialogs/rules/rules.component';
+import { CardTypePipe } from "../common/pipes/card-type.pipe";
+import RoundTable from '../common/types/RoundTable';
 
 @Component({
-  selector: 'app-game',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatProgressBarModule,
-    MatCardModule,
-    CardComponent,
-    MatButtonModule,
-    MatDividerModule,
-    MatTableModule,
-    MatExpansionModule,
-    MatPaginatorModule,
-    NormalizeNumberPipe,
-    MatDialogModule,
-
-  ],
-  templateUrl: './game.component.html',
-  styleUrl: './game.component.scss'
+    selector: 'app-game',
+    standalone: true,
+    templateUrl: './game.component.html',
+    styleUrl: './game.component.scss',
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        MatCardModule,
+        CardComponent,
+        MatButtonModule,
+        MatDividerModule,
+        MatTableModule,
+        MatExpansionModule,
+        MatPaginatorModule,
+        NormalizeNumberPipe,
+        MatDialogModule,
+        CardTypePipe
+    ]
 })
 export class GameComponent implements AfterContentInit, OnInit {
 
@@ -57,14 +59,14 @@ export class GameComponent implements AfterContentInit, OnInit {
   }
 
   public cardImageSources: { [key: string]: string } = {
-    "0": 'assets/spades.svg',
-    "1": 'assets/clubs.svg',
-    "2": 'assets/diamonds.svg',
-    "3": 'assets/hearts.svg',
+    "0": 'assets/basic-card.svg',
+    "1": 'assets/basic-card.svg',
+    "2": 'assets/basic-card.svg',
+    "3": 'assets/basic-card.svg',
   }
   public roundTableDataSource$ = new Observable<MatTableDataSource<RoundResponse>>();
 
-  public displayedColumns: string[] = ['roundNumber', 'previousBalance', 'total', 'change'];
+  public displayedColumns: string[] = ['roundNumber', 'previousBalance', 'total', 'change', 'type'];
 
   constructor(
     private router: Router,
@@ -102,6 +104,7 @@ export class GameComponent implements AfterContentInit, OnInit {
         return source;
       })
     );
+    this.openDialog();
   }
 
   logout() {
@@ -137,7 +140,8 @@ export class GameComponent implements AfterContentInit, OnInit {
 
   openDialog(): void {
     this.dialog.open(RulesComponent, {
-      disableClose: true
+      disableClose: true,
+      width: window.innerWidth < 960 ? '100%' : '60%'
     })
   }
 

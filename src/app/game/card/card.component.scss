@@ -23,9 +23,23 @@
     cursor: pointer;
 }
 
+.letter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translate(-50%, -50%);
+    font-size: 120px;
+    font-weight: bold;
+    color: white;
+    z-index: 100;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+}
+
 /* 2xl */
 @media (max-width: 1536px) {
-    .card- {
+    .card {
         height: 350px;
     }
 }
@@ -40,33 +54,32 @@
 /* lg */
 @media (max-width: 1024px) {
     .card {
-        height: 200px;
+        height: 160px;
     }
 
-    .hover-bg {
-        width: 85%;
-    }
+    // .hover-bg {
+    //     width: 85%;
+    // }
 }
 
 /* md */
 @media (max-width: 768px) {
     .card {
-        margin: 0px;
-        height: 150px;
+        height: 120px;
     }
-    .hover-bg {
-        width: 70%;
-    }
+    // .hover-bg {
+    //     width: 70%;
+    // }
 }
 
 /* sm */
 @media (max-width: 640px) {
     .card {
-        height: 200px;
+        height: 210px;
     }
-    .hover-bg {
-        width: 70%;
-    }
+    // .hover-bg {
+    //     width: 70%;
+    // }
 }
 
 /* xs */
@@ -74,7 +87,7 @@
     .card {
         height: 200px;
     }
-    .hover-bg {
-        width: 60%;
-    }
+    // .hover-bg {
+    //     width: 60%;
+    // }
 }

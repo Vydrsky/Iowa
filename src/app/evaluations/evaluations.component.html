@@ -30,7 +30,7 @@
         </ng-container>
         <ng-container matColumnDef="evaluationDate">
             <th mat-header-cell *matHeaderCellDef>Data przeprowadzenia badania:</th>
-            <td mat-cell *matCellDef="let element"> {{element.evaluationDate | date}} </td>
+            <td mat-cell *matCellDef="let element"> {{element.evaluationDate | date:'medium'}} </td>
         </ng-container>
         <ng-container matColumnDef="isPassed">
             <th mat-header-cell *matHeaderCellDef>Wynik Badania:</th>
