@@ -49,7 +49,6 @@ export class EvaluationsComponent implements AfterContentInit {
 
   constructor(
     private router: Router,
-    private cookieService: CookieService,
     private evaluationService: EvaluationService,
     private userService: UserService,
     private accountService: AccountService) { }
@@ -102,7 +101,7 @@ export class EvaluationsComponent implements AfterContentInit {
   }
 
   logout() {
-    this.cookieService.deleteAll();
+    sessionStorage.clear();
     this.router.navigate(['login']);
     localStorage.clear();
   }

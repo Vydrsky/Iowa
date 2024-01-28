@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AuthService } from '../../generated/services';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BehaviorSubject, debounce, interval, take, tap, } from 'rxjs';
-import { CookieService } from 'ngx-cookie-service';
+import { Observable, ReplaySubject, Subject, Subscription, catchError, debounceTime, distinctUntilChanged, finalize, of, switchMap, take, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthenticationResponse } from '../../generated/models';
 import { AsyncPipe, CommonModule, JsonPipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
+import { LoadingComponent } from '../common/components/loading/loading.component';
 
 @Component({
   selector: 'app-login',
@@ -24,68 +24,78 @@ import { ToastrService } from 'ngx-toastr';
     AsyncPipe,
     JsonPipe,
     CommonModule,
+    LoadingComponent
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
+
+  private sub = new Subscription();
+
+  private authSource = new Subject<boolean>();
+  private loadingSource = new ReplaySubject<boolean>(1);
 
   public loginForm: FormGroup;
 
   constructor(
     private formBuilder: FormBuilder,
     private authenticationService: AuthService,
-    private cookieService: CookieService,
     private router: Router,
     private toastrService: ToastrService) { }
 
-
+  getLoading(): Observable<boolean> {
+    return this.loadingSource.asObservable();
+  }
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
-      userCode: ['', { validators: [Validators.required, Validators.minLength(5)], updateOn: "blur" }]
+      userCode: ['', { validators: [Validators.required, Validators.minLength(5)], updateOn: "submit" }]
     });
+
+    this.sub.add(this.authSource.pipe(
+      debounceTime(300),
+      tap(() => this.loadingSource.next(true)),
+      switchMap(() => this.authenticationService.authenticate({
+        body: {
+          userCode: this.loginForm.value['userCode']
+        }
+      }).pipe(catchError((err) => {
+        this.toastrService.error(err, '', {
+          positionClass: 'toast-bottom-right'
+        });
+        return of(err)
+      }))),
+      tap(() => this.loadingSource.next(false)),
+    ).subscribe());
+
   }
 
   login() {
-    if (this.loginForm.invalid) return;
-
-    this.authenticationService.authenticate({
-      body: {
-        userCode: this.loginForm.value['userCode']
-      }
-    }).pipe(
-      take(1)
-      ).subscribe({
-        next: response => {
-          this.configureCookiesAndRoute(response);
-        },
-        error: (err: string) => {
-          console.log(err);
-          this.toastrService.error(err, '', {
-            positionClass: 'toast-bottom-right'
-          });
-        }
-      });
+    this.authSource.next(true);
   }
 
-  configureCookiesAndRoute(response: AuthenticationResponse) {
-    this.cookieService.set('token', response.token ?? "");
-    this.cookieService.set('userCode', response.userCode ?? "");
-    this.cookieService.set('userId', response.id ?? "");
-    this.cookieService.set('gameId', response.gameId ?? "");
-    this.cookieService.set('accountId', response.accountId ?? "");
+  configureSession(response: AuthenticationResponse) {
+    sessionStorage.setItem('token', response.token ?? "");
+    sessionStorage.setItem('userCode', response.userCode ?? "");
+    sessionStorage.setItem('userId', response.id ?? "");
+    sessionStorage.setItem('gameId', response.gameId ?? "");
+    sessionStorage.setItem('accountId', response.accountId ?? "");
 
     if (response.isAdmin) {
-      this.cookieService.set('admin', '1');
+      sessionStorage.setItem('admin', '1');
       this.router.navigate(['evaluations']);
     }
     else if (response.isArchived) {
-      this.cookieService.set('archived', '1');
+      sessionStorage.setItem('archived', '1');
       this.router.navigate(['summary'])
     }
     else {
       this.router.navigate(['game']);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }
 
