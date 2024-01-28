@@ -3,14 +3,18 @@
         <mat-card>
             <mat-card-content>
                 <div class="account-header">
+                    <div class="header-nav">
+                        <button mat-raised-button color="secondary" (click)="logout()">Powrót do logowania</button>
+                        <button mat-raised-button color="secondary" (click)="openDialog()">Pokaż Zasady</button>
+                    </div>
                     <h2>Liczba wybranych kart: {{(game | async)?.rounds?.length}} / 100</h2>
-                    <h2>Aktualnie posiadasz: <span style="color:green;">{{(account | async)?.balance}}$</span></h2>
+                    <h2>Aktualnie posiadasz: <span style="color:green;">{{(account | async)?.balance}}zł</span></h2>
                 </div>
                 <div class="account-bar-values">
-                    <p><b>0$</b></p>
-                    <p><b>4000$</b></p>
+                    <p><b>0zł</b></p>
+                    <p><b>7000zł</b></p>
                 </div>
-                <mat-progress-bar mode="determinate" [value]="(account | async)?.balance! | normalizeNumber" color="primary">
+                <mat-progress-bar mode="determinate" [value]="(account | async)?.balance! | normalizeNumber:7000" color="primary">
                 </mat-progress-bar>
             </mat-card-content>
         </mat-card>
@@ -29,7 +33,7 @@
         </mat-card>
     </div>
     <div class="subcontent">
-        <mat-card class="subcontent-rules padded">
+        <!-- <mat-card class="subcontent-rules padded">
             <mat-card-content>
                 <h1><u>Opis Gry:</u></h1>
                 <p>Głównym celem gry jest podwojenie początkowego stanu finansowego konta.</p>
@@ -40,9 +44,8 @@
             </mat-card-content>
             <mat-card-footer class="padded rules-footer">
                 <button mat-raised-button color="secondary" (click)="logout()">Powrót do logowania</button>
-                <button mat-raised-button color="secondary" (click)="restartGame()">Zrestartuj Grę</button>
             </mat-card-footer>
-        </mat-card>
+        </mat-card> -->
         <mat-expansion-panel class="subcontent-table">
             <mat-expansion-panel-header>
                 <mat-panel-title>Historia Rund:</mat-panel-title>

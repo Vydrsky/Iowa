@@ -9,11 +9,12 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 import { AccountService, GameService, UserService } from '../../generated/services';
 import { AccountResponse, CardRequest, GameResponse, RoundResponse } from '../../generated/models';
 import { BehaviorSubject, Observable, debounce, debounceTime, distinctUntilChanged, map, of, skip, switchMap, take, tap, throttle, throttleTime, throwError, } from 'rxjs';
 import { NormalizeNumberPipe } from '../common/pipes/normalize-number.pipe';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { RulesComponent } from '../common/dialogs/rules/rules.component';
 
 @Component({
   selector: 'app-game',
@@ -28,7 +29,9 @@ import { NormalizeNumberPipe } from '../common/pipes/normalize-number.pipe';
     MatTableModule,
     MatExpansionModule,
     MatPaginatorModule,
-    NormalizeNumberPipe
+    NormalizeNumberPipe,
+    MatDialogModule,
+
   ],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss'
@@ -65,13 +68,13 @@ export class GameComponent implements AfterContentInit, OnInit {
 
   constructor(
     private router: Router,
-    private cookieService: CookieService,
     private gameService: GameService,
-    private accountService: AccountService) { }
+    private accountService: AccountService,
+    private dialog: MatDialog) { }
 
   ngOnInit(): void {
-    var gameId = this.cookieService.get('gameId');
-    var accountId = this.cookieService.get('accountId');
+    var gameId = sessionStorage.getItem('gameId') ?? '';
+    var accountId = sessionStorage.getItem('accountId') ?? '';
 
     this.getGame$ = this.gameService.getGame({
       id: gameId
@@ -102,9 +105,8 @@ export class GameComponent implements AfterContentInit, OnInit {
   }
 
   logout() {
-    this.cookieService.deleteAll();
+    sessionStorage.clear();
     this.router.navigate(['login']);
-    this.cookieService.deleteAll();
   }
 
   addRound(cardRequest: CardRequest) {
@@ -121,25 +123,22 @@ export class GameComponent implements AfterContentInit, OnInit {
         previousBalance: this.accountSubject.value.balance,
       }
     }).pipe(
-      throttleTime(200),
       take(1),
       switchMap(result => {
         if (!result.gameContinued) {
-          this.cookieService.set('archived', '1');
+          sessionStorage.setItem('archived', '1');
           this.router.navigate(['summary']);
         }
         return of(result);
-      })).subscribe((response) => {
+      })).subscribe(() => {
         this.updateState();
       });
   }
 
-  restartGame() {
-    this.gameService.restartGame({
-      id: this.cookieService.get('gameId')
-    }).pipe(take(1)).subscribe(response => {
-      this.updateState();
-    });
+  openDialog(): void {
+    this.dialog.open(RulesComponent, {
+      disableClose: true
+    })
   }
 
   updateState() {

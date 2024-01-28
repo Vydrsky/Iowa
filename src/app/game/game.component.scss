@@ -9,6 +9,13 @@
       flex-direction: column;
   }
 
+  .header-nav {
+    width:100%;
+    display: flex;
+    justify-content: start;
+    gap: 16px;
+  }
+
   .responsive-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -23,18 +30,12 @@
   .subcontent {
       display: flex;
       margin: 40px 0;
-      gap: 40px;
       justify-content: center;
       flex-wrap: wrap;
   }
 
   .subcontent-table {
       flex-grow: 1;
-      height: fit-content;
-  }
-
-  .subcontent-rules {
-      height: fit-content;
   }
 
   .rules-footer {

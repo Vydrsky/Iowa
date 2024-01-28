@@ -66,7 +66,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         return of(err)
       }))),
       tap(() => this.loadingSource.next(false)),
-    ).subscribe());
+    ).subscribe((response) => {
+      this.configureSession(response);
+    }));
 
   }
 
