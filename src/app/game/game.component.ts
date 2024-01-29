@@ -11,54 +11,44 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { AccountService, GameService, UserService } from '../../generated/services';
 import { AccountResponse, CardRequest, GameResponse, RoundResponse } from '../../generated/models';
-import { BehaviorSubject, Observable, debounce, debounceTime, distinctUntilChanged, map, of, skip, switchMap, take, tap, throttle, throttleTime, throwError, } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, debounce, debounceTime, distinctUntilChanged, map, of, skip, switchMap, take, tap, throttle, throttleTime, throwError, } from 'rxjs';
 import { NormalizeNumberPipe } from '../common/pipes/normalize-number.pipe';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { RulesComponent } from '../common/dialogs/rules/rules.component';
 import { CardTypePipe } from "../common/pipes/card-type.pipe";
 
 @Component({
-    selector: 'app-game',
-    standalone: true,
-    templateUrl: './game.component.html',
-    styleUrl: './game.component.scss',
-    imports: [
-        CommonModule,
-        MatProgressBarModule,
-        MatCardModule,
-        CardComponent,
-        MatButtonModule,
-        MatDividerModule,
-        MatTableModule,
-        MatExpansionModule,
-        MatPaginatorModule,
-        NormalizeNumberPipe,
-        MatDialogModule,
-        CardTypePipe
-    ]
+  selector: 'app-game',
+  standalone: true,
+  templateUrl: './game.component.html',
+  styleUrl: './game.component.scss',
+  imports: [
+    CommonModule,
+    MatProgressBarModule,
+    MatCardModule,
+    CardComponent,
+    MatButtonModule,
+    MatDividerModule,
+    MatTableModule,
+    MatExpansionModule,
+    MatPaginatorModule,
+    NormalizeNumberPipe,
+    MatDialogModule,
+    CardTypePipe
+  ]
 })
 export class GameComponent implements AfterContentInit, OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  private getAccount$: Observable<AccountResponse>;
+  private refreshSubject = new ReplaySubject<boolean>(1);
+  private addRoundSubject = new ReplaySubject<CardRequest>(1);
+  private gameId: string;
+  private accountId: string;
 
-  private getGame$: Observable<GameResponse>;
-
-  private gameSubject = new BehaviorSubject<GameResponse>({});
-
-  private accountSubject = new BehaviorSubject<AccountResponse>({});
-
-  public get game(): Observable<GameResponse> {
-    return this.gameSubject.asObservable();
-  }
-
-  public get account(): Observable<AccountResponse> {
-    return this.accountSubject.asObservable();
-  }
-
+  public getAccount$: Observable<AccountResponse>;
+  public getGame$: Observable<GameResponse>;
   public roundTableDataSource$ = new Observable<MatTableDataSource<RoundResponse>>();
-
   public displayedColumns: string[] = ['roundNumber', 'previousBalance', 'total', 'change', 'type'];
 
   constructor(
@@ -68,22 +58,45 @@ export class GameComponent implements AfterContentInit, OnInit {
     private dialog: MatDialog) { }
 
   ngOnInit(): void {
-    var gameId = sessionStorage.getItem('gameId') ?? '';
-    var accountId = sessionStorage.getItem('accountId') ?? '';
+    this.gameId = sessionStorage.getItem('gameId') ?? '';
+    this.accountId = sessionStorage.getItem('accountId') ?? '';
 
-    this.getGame$ = this.gameService.getGame({
-      id: gameId
-    }).pipe(take(1));
+    this.getGame$ = this.refreshSubject.pipe(
+      switchMap(() => this.gameService.getGame({ id: this.gameId }))
+    )
 
-    this.getAccount$ = this.accountService.getAccount({
-      id: accountId
-    }).pipe(take(1));
+    this.getAccount$ = this.refreshSubject.pipe(
+      switchMap(() => this.accountService.getAccount({ id: this.accountId }))
+    )
 
+    this.addRoundSubject.pipe(
+      switchMap((cardRequest) => this.getAccount$.pipe(map(response => { return { balance: response.balance, card: cardRequest } }))),
+      switchMap((response) => this.gameService.addNewRoundToGame({
+        body: {
+          card: {
+            type: response.card.type,
+            rewardValue: response.card.rewardValue,
+            punishmentPercentChance: response.card.punishmentPercentChance,
+            punishmentValueDefault: response.card.punishmentValueDefault,
+            punishmentValueLower: response.card.punishmentValueLower,
+            punishmentValueUpper: response.card.punishmentValueUpper
+          },
+          gameId: this.gameId,
+          previousBalance: response.balance,
+        }
+      })),
+      tap(result => {
+        if (!result.gameContinued) {
+          sessionStorage.setItem('archived', '1');
+          this.router.navigate(['summary']);
+        }
+      })
+    ).subscribe(() => this.refreshSubject.next(true)); //problem
     this.updateState();
   }
 
   ngAfterContentInit(): void {
-    this.roundTableDataSource$ = this.game.pipe(
+    this.roundTableDataSource$ = this.getGame$.pipe(
       map(game => {
         const source = new MatTableDataSource<RoundResponse>();
         source.data = game.rounds ?? [];
@@ -102,34 +115,12 @@ export class GameComponent implements AfterContentInit, OnInit {
 
   logout() {
     sessionStorage.clear();
+    localStorage.clear();
     this.router.navigate(['login']);
   }
 
   addRound(cardRequest: CardRequest) {
-    this.gameService.addNewRoundToGame({
-      body: {
-        card: {
-          type: cardRequest.type,
-          rewardValue: cardRequest.rewardValue,
-          punishmentPercentChance: cardRequest.punishmentPercentChance,
-          punishmentValueDefault: cardRequest.punishmentValueDefault,
-          punishmentValueLower: cardRequest.punishmentValueLower,
-          punishmentValueUpper: cardRequest.punishmentValueUpper
-        },
-        gameId: this.gameSubject.value.id,
-        previousBalance: this.accountSubject.value.balance,
-      }
-    }).pipe(
-      take(1),
-      switchMap(result => {
-        if (!result.gameContinued) {
-          sessionStorage.setItem('archived', '1');
-          this.router.navigate(['summary']);
-        }
-        return of(result);
-      })).subscribe(() => {
-        this.updateState();
-      });
+    this.addRoundSubject.next(cardRequest);
   }
 
   openDialog(): void {
@@ -140,12 +131,6 @@ export class GameComponent implements AfterContentInit, OnInit {
   }
 
   updateState() {
-    this.getGame$.subscribe(response => {
-      this.gameSubject.next(response);
-    })
-
-    this.getAccount$.subscribe(response => {
-      this.accountSubject.next(response);
-    })
+    this.refreshSubject.next(true);
   }
 }

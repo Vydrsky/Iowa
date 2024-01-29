@@ -7,14 +7,14 @@
                         <button mat-raised-button color="secondary" (click)="logout()">Powrót do logowania</button>
                         <button mat-raised-button color="secondary" (click)="openDialog()">Pokaż Zasady</button>
                     </div>
-                    <h2>Liczba wybranych kart: {{(game | async)?.rounds?.length}} / 100</h2>
-                    <h2>Aktualnie posiadasz: <span style="color:green;">{{(account | async)?.balance}}zł</span></h2>
+                    <h2>Liczba wybranych kart: {{(getGame$ | async)?.rounds?.length}} / 100</h2>
+                    <h2>Aktualnie posiadasz: <span style="color:green;">{{(getAccount$ | async)?.balance}}zł</span></h2>
                 </div>
                 <div class="account-bar-values">
                     <p><b>0zł</b></p>
                     <p><b>7000zł</b></p>
                 </div>
-                <mat-progress-bar mode="determinate" [value]="(account | async)?.balance! | normalizeNumber:7000" color="primary">
+                <mat-progress-bar mode="determinate" [value]="(getAccount$ | async)?.balance! | normalizeNumber:7000" color="primary">
                 </mat-progress-bar>
             </mat-card-content>
         </mat-card>
@@ -23,7 +23,7 @@
         <mat-card>
             <mat-card-content>
                 <div class="responsive-grid">
-                    <ng-container *ngFor="let card of (game | async)!.cards">
+                    <ng-container *ngFor="let card of (getGame$ | async)!.cards">
                         <app-card imageSource="assets/basic-card.svg" [cardData]="card"
                             (addRound)="addRound($event)">
                         </app-card>
