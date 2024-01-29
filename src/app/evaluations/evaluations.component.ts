@@ -1,13 +1,13 @@
 import { AfterContentInit, Component, LOCALE_ID, OnDestroy, OnInit, QueryList, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { BehaviorSubject, Observable, OperatorFunction, ReplaySubject, Subscription, combineLatest, debounceTime, forkJoin, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, ReplaySubject, Subscription, forkJoin, map, switchMap, tap } from 'rxjs';
 import { AccountService, EvaluationService, UserService } from '../../generated/services';
 import EvaluationRecord from '../types/evaluation-record';
 import { AsyncPipe, CommonModule, DatePipe, registerLocaleData } from '@angular/common';
@@ -47,7 +47,7 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
   @ViewChild(MatSort) sort: MatSort;
 
   private evaluationsSource = new ReplaySubject<MatTableDataSource<EvaluationRecord, MatPaginator>>(1);
-  private allData$: Observable<EvaluationRecord[]>;
+  private allDataSource = new BehaviorSubject<EvaluationRecord[]>([]);
   private loadingSource = new BehaviorSubject<boolean>(false);
   private sub = new Subscription();
 
@@ -113,14 +113,13 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
       map((evaluationRecords) => {
         const source = new MatTableDataSource<EvaluationRecord>();
         source.data = evaluationRecords;
+        this.allDataSource.next(evaluationRecords);
         source.paginator = this.paginator;
         source.sort = this.sort;
         return source;
       }),
       tap(() => this.loadingSource.next(false))
     );
-
-    this.allData$ = this.evaluationsSource.pipe(debounceTime(300), this.getData());
 
     this.evaluationsSource.next(new MatTableDataSource());
   }
@@ -140,10 +139,17 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
     return data.filter(el => el.userCode.toLowerCase().includes(this.searchInput));
   }
 
-  applyFilter(source: MatTableDataSource<EvaluationRecord, MatPaginator>) {
-    this.allData$.subscribe(data => {
-      source.data = this.filterData(data);
-    })
+  applyFilter() {
+    this.evaluationsTableDataSource$ = this.evaluationsSource.pipe(
+      map(() => this.filterData(this.allDataSource.value)),
+      map(records => {
+        const source = new MatTableDataSource<EvaluationRecord>();
+        source.data = records;
+        source.paginator = this.paginator;
+        source.sort = this.sort;
+        return source;
+      })
+    )
   }
 
   openDetails(record: EvaluationRecord) {

@@ -1,53 +1,51 @@
-<div style="position: relative;">
-    <div class="header">
-        <button mat-raised-button (click)="logout()">Powrót do logowania</button>
-        <div class="header-text">
-            <h1><b>Wyniki Badań:</b></h1>
-        </div>
+<div class="header">
+    <button mat-raised-button (click)="logout()">Powrót do logowania</button>
+    <div class="header-text">
+        <h1><b>Wyniki Badań:</b></h1>
     </div>
+</div>
 
-    <div class="evaluations-table" *ngIf="evaluationsTableDataSource$ | async as data">
-        <div class="table-header">
-            <mat-form-field class="table-search">
-                <input matInput type="text" [(ngModel)]="searchInput" (ngModelChange)="applyFilter(data)"
-                    placeholder="Wyszukaj po kodzie użytkownika">
-                <mat-icon matSuffix fontIcon="search"></mat-icon>
-            </mat-form-field>
-            <mat-paginator #paginatorTop [length]="100" [pageSize]="20" [pageSizeOptions]="[5, 10, 20]"
-                (page)="paginatorBottom.pageIndex = $event.pageIndex; paginatorBottom.pageSize = $event.pageSize;">
-            </mat-paginator>
-        </div>
-        <table mat-table [dataSource]="data" matSort>
-
-            <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Id badania:</th>
-                <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-            </ng-container>
-            <ng-container matColumnDef="userCode">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Kod użytkownika:</th>
-                <td mat-cell *matCellDef="let element"> {{element.userCode}} </td>
-            </ng-container>
-            <ng-container matColumnDef="balance">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Ostateczny stan konta:</th>
-                <td mat-cell *matCellDef="let element"> {{element.balance}} </td>
-            </ng-container>
-            <ng-container matColumnDef="evaluationDate">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Data przeprowadzenia badania:</th>
-                <td mat-cell *matCellDef="let element"> {{element.evaluationDate | date:'medium'}} </td>
-            </ng-container>
-            <ng-container matColumnDef="isPassed">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Wynik Badania:</th>
-                <td mat-cell *matCellDef="let element"> {{element.isPassed ? 'Pozytywny' : 'Negatywny'}} </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openDetails(row)"></tr>
-
-        </table>
-        <mat-paginator #paginatorBottom [length]="paginatorTop.length" [pageSize]="paginatorTop.pageSize"
-            [pageSizeOptions]="paginatorTop.pageSizeOptions"
-            (page)="paginatorTop.pageIndex = $event.pageIndex; paginatorTop.pageSize = $event.pageSize; paginatorTop.page.emit($event)">
+<div class="evaluations-table" style="position: relative;">
+    <div class="table-header">
+        <mat-form-field class="table-search">
+            <input matInput type="text" [(ngModel)]="searchInput" (ngModelChange)="applyFilter()"
+                placeholder="Wyszukaj po kodzie użytkownika">
+            <mat-icon matSuffix fontIcon="search"></mat-icon>
+        </mat-form-field>
+        <mat-paginator #paginatorTop [length]="(evaluationsTableDataSource$ | async)?.data?.length" [pageSize]="20"
+            [pageSizeOptions]="[5, 10, 20]"
+            (page)="paginatorBottom.pageIndex = $event.pageIndex; paginatorBottom.pageSize = $event.pageSize;">
         </mat-paginator>
     </div>
+    <table mat-table [dataSource]="(evaluationsTableDataSource$ | async)!" matSort>
+
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Id badania:</th>
+            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+        </ng-container>
+        <ng-container matColumnDef="userCode">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Kod użytkownika:</th>
+            <td mat-cell *matCellDef="let element"> {{element.userCode}} </td>
+        </ng-container>
+        <ng-container matColumnDef="balance">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Ostateczny stan konta:</th>
+            <td mat-cell *matCellDef="let element"> {{element.balance}} </td>
+        </ng-container>
+        <ng-container matColumnDef="evaluationDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Data przeprowadzenia badania:</th>
+            <td mat-cell *matCellDef="let element"> {{element.evaluationDate | date:'medium'}} </td>
+        </ng-container>
+        <ng-container matColumnDef="isPassed">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Wynik Badania:</th>
+            <td mat-cell *matCellDef="let element"> {{element.isPassed ? 'Pozytywny' : 'Negatywny'}} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openDetails(row)"></tr>
+    </table>
+    <mat-paginator #paginatorBottom [length]="paginatorTop.length" [pageSize]="paginatorTop.pageSize"
+        [pageSizeOptions]="paginatorTop.pageSizeOptions"
+        (page)="paginatorTop.pageIndex = $event.pageIndex; paginatorTop.pageSize = $event.pageSize; paginatorTop.page.emit($event)">
+    </mat-paginator>
     <app-loading *ngIf="getLoadingSource() | async"></app-loading>
 </div>
