@@ -10,15 +10,15 @@ export class HttpErrorInterceptor implements HttpInterceptor {
       .pipe(
         catchError((err: HttpErrorResponse) => {
           console.log(err.error);
-          if(err.error?.errors !== undefined) {
-            let message = '';
-            Object.keys(err.error.errors).forEach((key) => {
-              err.error.errors[key].forEach((msg: string) =>{
-                message += msg + '\n';
-              })
-            });
-            return throwError(message);
-          }
+          // if(err.error?.errors !== undefined) {
+          //   let message = '';
+          //   Object.keys(err.error.errors).forEach((key) => {
+          //     err.error.errors[key].forEach((msg: string) =>{
+          //       message += msg + '\n';
+          //     })
+          //   });
+          //   return throwError(message);
+          // }
           return throwError("Coś poszło nie tak, proszę spróbować później.");
         })
       );

@@ -31,6 +31,11 @@
     flex-grow: 1;
 }
 
+tr.mat-mdc-row:hover {
+    background-color: lightgrey;
+    cursor: pointer;
+}
+
 /* 2xl */
 @media (max-width: 1536px) {}
 

@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, LOCALE_ID, ViewChild } from '@angular/core';
+import { AfterContentInit, Component, LOCALE_ID, OnDestroy, OnInit, QueryList, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -6,19 +6,26 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 import { FormsModule } from '@angular/forms';
-import { BehaviorSubject, Observable, combineLatest, concatMap, map, of, take } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, ReplaySubject, Subscription, combineLatest, debounceTime, forkJoin, map, switchMap, tap } from 'rxjs';
 import { AccountService, EvaluationService, UserService } from '../../generated/services';
 import EvaluationRecord from '../types/evaluation-record';
-import { AsyncPipe, DatePipe, registerLocaleData } from '@angular/common';
+import { AsyncPipe, CommonModule, DatePipe, registerLocaleData } from '@angular/common';
 import localePl from '@angular/common/locales/pl';
-import {MatSort, MatSortModule} from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
+import { DetailsComponent } from '../common/dialogs/details/details.component';
+import { LoadingComponent } from "../common/components/loading/loading.component";
 registerLocaleData(localePl);
 
 @Component({
   selector: 'app-evaluations',
   standalone: true,
+  providers: [
+    { provide: LOCALE_ID, useValue: "pl-PL" }
+  ],
+  templateUrl: './evaluations.component.html',
+  styleUrl: './evaluations.component.scss',
   imports: [
     MatTableModule,
     MatPaginatorModule,
@@ -29,54 +36,61 @@ registerLocaleData(localePl);
     FormsModule,
     AsyncPipe,
     DatePipe,
-    MatSortModule
-  ],
-  providers: [
-    { provide: LOCALE_ID, useValue: "pl-PL" }
-  ],
-  templateUrl: './evaluations.component.html',
-  styleUrl: './evaluations.component.scss'
+    MatSortModule,
+    LoadingComponent,
+    CommonModule
+  ]
 })
-export class EvaluationsComponent implements AfterContentInit {
+export class EvaluationsComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  
-  private evaluationsSubject = new BehaviorSubject<EvaluationRecord[]>([]);
 
+  private evaluationsSource = new ReplaySubject<MatTableDataSource<EvaluationRecord, MatPaginator>>(1);
+  private allData$: Observable<EvaluationRecord[]>;
+  private loadingSource = new BehaviorSubject<boolean>(false);
+  private sub = new Subscription();
+
+  public evaluationsTableDataSource$: Observable<MatTableDataSource<EvaluationRecord, MatPaginator>>;
   public displayedColumns: string[] = ['id', 'userCode', 'balance', 'evaluationDate', 'isPassed'];
-
   public searchInput: string = '';
-
-  public evaluationTableDataSource$ = new Observable<MatTableDataSource<EvaluationRecord>>();
 
   constructor(
     private router: Router,
     private evaluationService: EvaluationService,
     private userService: UserService,
-    private accountService: AccountService) { }
+    private accountService: AccountService,
+    private dialog: MatDialog) { }
 
-  ngOnInit(): void {
-    this.evaluationService.getAllEvaluations().pipe(
-      take(1),
-      concatMap(evaluations => {
+  getEvaluationsSource(): Observable<MatTableDataSource<EvaluationRecord, MatPaginator>> {
+    return this.evaluationsSource.asObservable();
+  }
+
+  getLoadingSource(): Observable<boolean> {
+    return this.loadingSource.asObservable();
+  }
+
+  private getData(): OperatorFunction<any, EvaluationRecord[]> {
+    return (source: Observable<any>) => source.pipe(
+      switchMap(() => this.evaluationService.getAllEvaluations()),
+      switchMap(evaluations => {
         let evaluationsWithUsers: Observable<any>[] = [];
         evaluations.forEach((evaluation) => {
           evaluationsWithUsers
             .push(this.userService
-                .getUser({ id: evaluation.userId ?? '' })
-                .pipe(map((user) => {
-                  return { userCode: user.userCode, evaluationDate: evaluation.evaluationDate, id: evaluation.id, accountId: user.accountId, isPassed: evaluation.isPassed }
-                })))
+              .getUser({ id: evaluation.userId ?? '' })
+              .pipe(map((user) => {
+                return { userCode: user.userCode, evaluationDate: evaluation.evaluationDate, id: evaluation.id, accountId: user.accountId, isPassed: evaluation.isPassed }
+              })))
         })
-        return combineLatest(evaluationsWithUsers);
+        return forkJoin(evaluationsWithUsers);
       }),
-      concatMap(evaluationsWithUsers => {
+      switchMap(evaluationsWithUsers => {
         let evaluationRecords$: Observable<EvaluationRecord>[] = [];
         evaluationsWithUsers.forEach(evaluationWithUsers => {
           evaluationRecords$
             .push(this.accountService
-              .getAccount({id: evaluationWithUsers.accountId})
+              .getAccount({ id: evaluationWithUsers.accountId })
               .pipe(map(account => {
                 return {
                   balance: account.balance ?? 0,
@@ -87,21 +101,32 @@ export class EvaluationsComponent implements AfterContentInit {
                 }
               })));
         })
-        return combineLatest(evaluationRecords$);
+        return forkJoin(evaluationRecords$);
       })
-    ).subscribe(result => {
-      this.evaluationsSubject.next(result);
-    });
+    )
   }
 
-  ngAfterContentInit(): void {
-    this.evaluationTableDataSource$ = this.evaluationsSubject.pipe(map((evaluationRecords) => {
-      const source = new MatTableDataSource<EvaluationRecord>();
-      source.data = evaluationRecords;
-      source.paginator = this.paginator;
-      source.sort = this.sort;
-      return source;
-    }))
+  ngOnInit(): void {
+    this.evaluationsTableDataSource$ = this.evaluationsSource.pipe(
+      tap(() => this.loadingSource.next(true)),
+      this.getData(),
+      map((evaluationRecords) => {
+        const source = new MatTableDataSource<EvaluationRecord>();
+        source.data = evaluationRecords;
+        source.paginator = this.paginator;
+        source.sort = this.sort;
+        return source;
+      }),
+      tap(() => this.loadingSource.next(false))
+    );
+
+    this.allData$ = this.evaluationsSource.pipe(debounceTime(300), this.getData());
+
+    this.evaluationsSource.next(new MatTableDataSource());
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 
   logout() {
@@ -115,10 +140,17 @@ export class EvaluationsComponent implements AfterContentInit {
     return data.filter(el => el.userCode.toLowerCase().includes(this.searchInput));
   }
 
-  applyFilter(observable$: Observable<MatTableDataSource<EvaluationRecord>>) {
-    this.evaluationTableDataSource$ = observable$.pipe(map((source) =>{
-      source.data = this.filterData(source.data);
-      return source;
-    }));
+  applyFilter(source: MatTableDataSource<EvaluationRecord, MatPaginator>) {
+    this.allData$.subscribe(data => {
+      source.data = this.filterData(data);
+    })
+  }
+
+  openDetails(record: EvaluationRecord) {
+    this.dialog.open(DetailsComponent, {
+      data: {
+        id: record.id
+      }
+    });
   }
 }
