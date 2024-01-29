@@ -58,12 +58,6 @@ export class GameComponent implements AfterContentInit, OnInit {
     return this.accountSubject.asObservable();
   }
 
-  public cardImageSources: { [key: string]: string } = {
-    "0": 'assets/basic-card.svg',
-    "1": 'assets/basic-card.svg',
-    "2": 'assets/basic-card.svg',
-    "3": 'assets/basic-card.svg',
-  }
   public roundTableDataSource$ = new Observable<MatTableDataSource<RoundResponse>>();
 
   public displayedColumns: string[] = ['roundNumber', 'previousBalance', 'total', 'change', 'type'];
@@ -119,6 +113,7 @@ export class GameComponent implements AfterContentInit, OnInit {
           type: cardRequest.type,
           rewardValue: cardRequest.rewardValue,
           punishmentPercentChance: cardRequest.punishmentPercentChance,
+          punishmentValueDefault: cardRequest.punishmentValueDefault,
           punishmentValueLower: cardRequest.punishmentValueLower,
           punishmentValueUpper: cardRequest.punishmentValueUpper
         },

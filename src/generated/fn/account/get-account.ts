@@ -15,7 +15,7 @@ export interface GetAccount$Params {
 export function getAccount(http: HttpClient, rootUrl: string, params: GetAccount$Params, context?: HttpContext): Observable<StrictHttpResponse<AccountResponse>> {
   const rb = new RequestBuilder(rootUrl, getAccount.PATH, 'get');
   if (params) {
-    rb.path('id', params.id, { "style": "simple" });
+    rb.path('id', params.id, {"style":"simple"});
   }
 
   return http.request(
