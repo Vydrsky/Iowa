@@ -16,7 +16,6 @@ import { NormalizeNumberPipe } from '../common/pipes/normalize-number.pipe';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { RulesComponent } from '../common/dialogs/rules/rules.component';
 import { CardTypePipe } from "../common/pipes/card-type.pipe";
-import RoundTable from '../common/types/RoundTable';
 
 @Component({
     selector: 'app-game',
@@ -74,11 +73,11 @@ export class GameComponent implements AfterContentInit, OnInit {
 
     this.getGame$ = this.gameService.getGame({
       id: gameId
-    }).pipe(distinctUntilChanged(), take(1));
+    }).pipe(take(1));
 
     this.getAccount$ = this.accountService.getAccount({
       id: accountId
-    }).pipe(distinctUntilChanged(), take(1));
+    }).pipe(take(1));
 
     this.updateState();
   }
