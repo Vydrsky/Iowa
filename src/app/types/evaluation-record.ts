@@ -4,4 +4,5 @@ export default class EvaluationRecord{
     balance: number;
     evaluationDate: string;
     isPassed: boolean;
+    gameId: string;
 }

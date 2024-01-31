@@ -10,6 +10,11 @@
       gap: 16px;
   }
 
+  .cooldown {
+    opacity: 0.5;
+    background-color: grey;
+  }
+
   .header-nav {
     width:100%;
     display: flex;
@@ -43,6 +48,11 @@
     display: flex;
     justify-content: start;
     gap: 16px;
+  }
+
+  .results {
+    display: flex;
+    gap: 40px;
   }
 
   /* 2xl */

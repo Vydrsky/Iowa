@@ -80,7 +80,13 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
             .push(this.userService
               .getUser({ id: evaluation.userId ?? '' })
               .pipe(map((user) => {
-                return { userCode: user.userCode, evaluationDate: evaluation.evaluationDate, id: evaluation.id, accountId: user.accountId, isPassed: evaluation.isPassed }
+                return { 
+                  userCode: user.userCode, 
+                  evaluationDate: evaluation.evaluationDate, 
+                  id: evaluation.id, 
+                  accountId: user.accountId, 
+                  isPassed: evaluation.isPassed,
+                  gameId: user.gameId }
               })))
         })
         return forkJoin(evaluationsWithUsers);
@@ -98,6 +104,7 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
                   userCode: evaluationWithUsers.userCode,
                   evaluationDate: evaluationWithUsers.evaluationDate,
                   isPassed: evaluationWithUsers.isPassed,
+                  gameId: evaluationWithUsers.gameId,
                 }
               })));
         })
@@ -155,8 +162,10 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
   openDetails(record: EvaluationRecord) {
     this.dialog.open(DetailsComponent, {
       data: {
-        id: record.id
-      }
+        id: record.gameId,
+        label: record.userCode
+      },
+      maxHeight: '90vh'
     });
   }
 }

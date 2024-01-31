@@ -1,44 +1,57 @@
 <section>
-    <div class="account">
-        <mat-card>
-            <mat-card-content>
-                <div class="account-header">
-                    <div class="header-nav">
-                        <button mat-raised-button color="secondary" (click)="logout()">Powrót do logowania</button>
-                        <button mat-raised-button color="secondary" (click)="openDialog()">Pokaż Zasady</button>
+    <ng-container *ngIf="getGame$ | async as game">
+        <div class="account">
+            <mat-card>
+                <ng-container *ngIf="getAccount$ | async as account">
+                    <mat-card-content>
+                        <div class="account-header">
+                            <div class="header-nav">
+                                <button mat-raised-button color="secondary" (click)="logout()">Powrót do
+                                    logowania</button>
+                                <button mat-raised-button color="secondary" (click)="openDialog()">Pokaż Zasady</button>
+                            </div>
+                            <h2>Aktualnie posiadasz: <span style="color:green;">{{account.balance}}zł</span></h2>
+                            <ng-container *ngIf="getChange() | async as change">
+                                <div class="results">
+                                    <h1><span style="color: green">Zyskano: {{change.rewardValue}}&#9;</span></h1>
+                                    <h1><span style="color: red;">Stracono: {{account.balance! -
+                                            account.previousBalance! -
+                                            change.rewardValue!}}</span></h1>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="account-bar-values">
+                            <p><b>0zł</b></p>
+                            <p><b>4500zł</b></p>
+                        </div>
+                        <mat-progress-bar mode="determinate" [value]="account.balance! | normalizeNumber:7000"
+                            color="primary">
+                        </mat-progress-bar>
+                    </mat-card-content>
+                </ng-container>
+            </mat-card>
+        </div>
+        <div class="cards">
+            <mat-card>
+                <mat-card-content>
+                    <div class="responsive-grid">
+                        <ng-container *ngFor="let card of game.cards, index as i">
+                            <app-card imageSource="assets/basic-card.svg" [cardData]="card"
+                                (addRound)="addRound($event)">
+                            </app-card>
+                        </ng-container>
                     </div>
-                    <h2>Liczba wybranych kart: {{(getGame$ | async)?.rounds?.length}} / 100</h2>
-                    <h2>Aktualnie posiadasz: <span style="color:green;">{{(getAccount$ | async)?.balance}}zł</span></h2>
-                </div>
-                <div class="account-bar-values">
-                    <p><b>0zł</b></p>
-                    <p><b>7000zł</b></p>
-                </div>
-                <mat-progress-bar mode="determinate" [value]="(getAccount$ | async)?.balance! | normalizeNumber:7000" color="primary">
-                </mat-progress-bar>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div class="cards">
-        <mat-card>
-            <mat-card-content>
-                <div class="responsive-grid">
-                    <ng-container *ngFor="let card of (getGame$ | async)!.cards">
-                        <app-card imageSource="assets/basic-card.svg" [cardData]="card"
-                            (addRound)="addRound($event)">
-                        </app-card>
-                    </ng-container>
-                </div>
-            </mat-card-content>
-        </mat-card>
-    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </ng-container>
     <div class="subcontent">
         <mat-expansion-panel class="subcontent-table">
             <mat-expansion-panel-header>
                 <mat-panel-title>Historia Rund:</mat-panel-title>
             </mat-expansion-panel-header>
-            <ng-container *ngIf="(roundTableDataSource$ | async)?.data?.length !== 0">
-                <table mat-table [dataSource]="(roundTableDataSource$ | async)!">
+            <ng-container *ngIf="roundTableDataSource$ | async as tableData">
+                <table *ngIf="tableData.data.length > 0" mat-table [dataSource]="(roundTableDataSource$ | async)!">
 
                     <ng-container matColumnDef="roundNumber">
                         <th mat-header-cell *matHeaderCellDef>Numer Rundy:</th>
@@ -69,7 +82,7 @@
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                 </table>
             </ng-container>
-            <mat-paginator [length]="100" [pageSize]="5" [pageSizeOptions]="[5, 10, 20]">
+            <mat-paginator [length]="100" [pageSize]="5" [pageSizeOptions]="[5, 10, 20]" i>
             </mat-paginator>
         </mat-expansion-panel>
     </div>
