@@ -79,7 +79,12 @@ export class DetailsComponent implements AfterContentInit, OnDestroy {
 
   RoundToExcelFormat(obj: RoundResponse): string {
     let result = "";
+    let previousKey = "";
     Object.keys(obj).forEach((key, index) => {
+      if(previousKey === 'total'){
+        result += (obj.total! - obj.previousBalance!).toString() + ',\t';
+      }
+
       if(key === 'id'){
 
       }
@@ -92,8 +97,8 @@ export class DetailsComponent implements AfterContentInit, OnDestroy {
       else{
         result += ((obj as {[x:string]:any})[key]).toString() + ',\t';
       }
+      previousKey = key;
     });
-    result += (obj.total! - obj.previousBalance!).toString() + ',\t';
     return result + "\n";
   }
 }
