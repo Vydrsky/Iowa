@@ -7,4 +7,5 @@ export interface RoundResponse {
   roundNumber?: number;
   total?: number;
   type?: CardType;
+  won?: boolean;
 }

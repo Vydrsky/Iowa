@@ -52,7 +52,23 @@
 
   .results {
     display: flex;
+    justify-content: space-between;
     gap: 40px;
+  }
+
+  .cards {
+    position: relative;
+  }
+
+  .overlay-greyout {
+    background-color: black;
+    opacity: 0.3;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 999;
   }
 
   /* 2xl */

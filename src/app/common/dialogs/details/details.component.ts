@@ -1,13 +1,14 @@
-import { AfterContentInit, Component, Inject, OnDestroy, OnInit, } from '@angular/core';
+import { AfterContentInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild, } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CardTypePipe } from "../../pipes/card-type.pipe";
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Observable, ReplaySubject, Subscribable, Subscription, map, switchMap, tap } from 'rxjs';
-import { RoundResponse } from '../../../../generated/models';
+import { CardType, RoundResponse } from '../../../../generated/models';
 import { CommonModule } from '@angular/common';
 import { MatPaginator } from '@angular/material/paginator';
 import { GameService } from '../../../../generated/services';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-details',
@@ -18,7 +19,11 @@ import { GameService } from '../../../../generated/services';
     MatButtonModule,
     CardTypePipe,
     MatTableModule,
-    CommonModule
+    CommonModule,
+    ClipboardModule
+  ],
+  providers: [
+    CardTypePipe
   ]
 })
 export class DetailsComponent implements AfterContentInit, OnDestroy {
@@ -32,7 +37,8 @@ export class DetailsComponent implements AfterContentInit, OnDestroy {
   constructor(
     private dialogRef: MatDialogRef<DetailsComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private gameService: GameService
+    private gameService: GameService,
+    private cardTypePipe: CardTypePipe
   ) { }
 
   ngOnInit(): void {
@@ -61,5 +67,29 @@ export class DetailsComponent implements AfterContentInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+  }
+
+  copyData(data: RoundResponse[]) {
+    let content = "";
+    data.forEach(row => {
+      content += this.RoundToExcelFormat(row)
+    })
+    return content;
+  }
+
+  RoundToExcelFormat(obj: RoundResponse): string {
+    let result = "";
+    Object.keys(obj).forEach((key, index) => {
+      if(key === 'type'){
+        result += this.cardTypePipe.transform(Number(obj[key])) + '\t';
+      }
+      else if(key === 'won'){
+        result += (obj[key] ? 'Tak' : 'Nie') + '\t'
+      }
+      else{
+        result += ((obj as {[x:string]:any})[key]).toString() + ',\t';
+      }
+    });
+    return result + "\n";
   }
 }

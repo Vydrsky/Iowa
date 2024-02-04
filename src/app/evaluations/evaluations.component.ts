@@ -1,6 +1,6 @@
 import { AfterContentInit, Component, LOCALE_ID, OnDestroy, OnInit, QueryList, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,13 +16,16 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { DetailsComponent } from '../common/dialogs/details/details.component';
 import { LoadingComponent } from "../common/components/loading/loading.component";
+import { CustomPaginator } from '../config/custom-paginator';
+import { ScrollStrategyOptions } from '@angular/cdk/overlay';
 registerLocaleData(localePl);
 
 @Component({
   selector: 'app-evaluations',
   standalone: true,
   providers: [
-    { provide: LOCALE_ID, useValue: "pl-PL" }
+    { provide: LOCALE_ID, useValue: "pl-PL" },
+    { provide: MatPaginatorIntl, useValue: CustomPaginator()}
   ],
   templateUrl: './evaluations.component.html',
   styleUrl: './evaluations.component.scss',
@@ -165,7 +168,8 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
         id: record.gameId,
         label: record.userCode
       },
-      maxHeight: '90vh'
+      maxHeight: '90vh',
+      
     });
   }
 }

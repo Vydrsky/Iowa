@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { AccountService, GameService, UserService } from '../../generated/services';
 import { AccountResponse, CardRequest, GameResponse, RoundResponse } from '../../generated/models';
@@ -16,6 +16,7 @@ import { NormalizeNumberPipe } from '../common/pipes/normalize-number.pipe';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { RulesComponent } from '../common/dialogs/rules/rules.component';
 import { CardTypePipe } from "../common/pipes/card-type.pipe";
+import { CustomPaginator } from '../config/custom-paginator';
 
 @Component({
   selector: 'app-game',
@@ -35,6 +36,9 @@ import { CardTypePipe } from "../common/pipes/card-type.pipe";
     NormalizeNumberPipe,
     MatDialogModule,
     CardTypePipe,
+  ],
+  providers: [
+    {provide: MatPaginatorIntl, useValue: CustomPaginator()}
   ]
 })
 export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
@@ -44,16 +48,17 @@ export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
   private refreshSubject = new ReplaySubject<boolean>(1);
   private addRoundSubject = new ReplaySubject<CardRequest>(1);
   private changeSubject = new ReplaySubject<CardRequest>(1);
+  private overlaySubject = new BehaviorSubject<boolean>(false);
   private gameId: string;
   private accountId: string;
   public getAccountShare$: Observable<AccountResponse>;
   public getGameShare$: Observable<GameResponse>;
   private sub = new Subscription();
-  private getAccount$: Observable<AccountResponse>;
-  private getGame$: Observable<GameResponse>;
+  private refreshGame$: Observable<GameResponse>;
+  private refreshAccount$: Observable<AccountResponse>;
 
-  public refreshGame$: Observable<GameResponse>;
-  public refreshAccount$: Observable<AccountResponse>;
+  public getAccount$: Observable<AccountResponse>;
+  public getGame$: Observable<GameResponse>;
   public roundTableDataSource$ = new Observable<MatTableDataSource<RoundResponse>>();
 
   public displayedColumns: string[] = ['roundNumber', 'previousBalance', 'total', 'change', 'type'];
@@ -75,6 +80,12 @@ export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
     this.getAccount$ = this.refreshAccount$.pipe(shareReplay(1));
 
     this.sub.add(this.addRoundSubject.pipe(
+      tap(() => {
+        this.overlaySubject.next(true);
+        setTimeout(() => {
+          this.overlaySubject.next(false);
+        }, 500)
+      }),
       throttleTime(500),
       switchMap((cardRequest) => this.accountService.getAccount({ id: this.accountId }).pipe(map(response => { return { balance: response.balance, card: cardRequest } }))),
       switchMap((response) => forkJoin([this.gameService.addNewRoundToGame({
@@ -101,7 +112,9 @@ export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
       })
     ).subscribe((result) => {
       this.refreshSubject.next(true);
-      this.changeSubject.next(result[1]);
+      setTimeout(() => {
+        this.changeSubject.next(result[1]);
+      })
     }
     ));
 
@@ -132,8 +145,16 @@ export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
     this.sub.unsubscribe();
   }
 
-  getChange(): Observable<[CardRequest, AccountResponse]> {
-    return zip(this.changeSubject, this.getAccount$);
+  getChange(): Observable<{ first: number, second: number }> {
+    return zip(this.changeSubject, this.getAccount$).pipe(map(response => {
+      var first = response[0].rewardValue!;
+      var second = Math.abs((response[1].balance! - response[1].previousBalance!) - response[0]!.rewardValue!)
+      return { first, second };
+    }));
+  }
+
+  getOverlay(): Observable<boolean> {
+    return this.overlaySubject.asObservable();
   }
 
   logout() {
