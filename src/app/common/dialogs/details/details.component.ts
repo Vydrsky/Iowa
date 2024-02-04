@@ -80,7 +80,10 @@ export class DetailsComponent implements AfterContentInit, OnDestroy {
   RoundToExcelFormat(obj: RoundResponse): string {
     let result = "";
     Object.keys(obj).forEach((key, index) => {
-      if(key === 'type'){
+      if(key === 'id'){
+
+      }
+      else if(key === 'type'){
         result += this.cardTypePipe.transform(Number(obj[key])) + '\t';
       }
       else if(key === 'won'){
@@ -90,6 +93,7 @@ export class DetailsComponent implements AfterContentInit, OnDestroy {
         result += ((obj as {[x:string]:any})[key]).toString() + ',\t';
       }
     });
+    result += (obj.total! - obj.previousBalance!).toString() + ',\t';
     return result + "\n";
   }
 }
