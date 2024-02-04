@@ -1,8 +1,8 @@
 <section>
-    <ng-container *ngIf="getGame$ | async as game">
+    <ng-container *ngIf="refreshGame$ | async as game">
         <div class="account">
             <mat-card>
-                <ng-container *ngIf="getAccount$ | async as account">
+                <ng-container *ngIf="refreshAccount$ | async as account">
                     <mat-card-content>
                         <div class="account-header">
                             <div class="header-nav">
@@ -13,10 +13,10 @@
                             <h2>Aktualnie posiadasz: <span style="color:green;">{{account.balance}}zł</span></h2>
                             <ng-container *ngIf="getChange() | async as change">
                                 <div class="results">
-                                    <h1><span style="color: green">Zyskano: {{change.rewardValue}}&#9;</span></h1>
-                                    <h1><span style="color: red;">Stracono: {{account.balance! -
-                                            account.previousBalance! -
-                                            change.rewardValue!}}</span></h1>
+                                    <h1><span style="color: green">Zyskano: {{change[0].rewardValue}}&#9;</span></h1>
+                                    <h1><span style="color: red;">Stracono: {{change[1].balance! -
+                                            change[1].previousBalance! -
+                                            change[0].rewardValue!}}</span></h1>
                                 </div>
                             </ng-container>
                         </div>
@@ -51,7 +51,7 @@
                 <mat-panel-title>Historia Rund:</mat-panel-title>
             </mat-expansion-panel-header>
             <ng-container *ngIf="roundTableDataSource$ | async as tableData">
-                <table *ngIf="tableData.data.length > 0" mat-table [dataSource]="(roundTableDataSource$ | async)!">
+                <table *ngIf="tableData.data.length > 0" mat-table [dataSource]="tableData">
 
                     <ng-container matColumnDef="roundNumber">
                         <th mat-header-cell *matHeaderCellDef>Numer Rundy:</th>

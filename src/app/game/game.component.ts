@@ -11,36 +11,36 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { AccountService, GameService, UserService } from '../../generated/services';
 import { AccountResponse, CardRequest, GameResponse, RoundResponse } from '../../generated/models';
-import { BehaviorSubject, Observable, ReplaySubject, Subscription, debounce, debounceTime, delay, distinctUntilChanged, map, of, pipe, share, skip, switchMap, take, tap, throttle, throttleTime, throwError, } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subscription, combineLatest, debounce, debounceTime, delay, distinct, distinctUntilChanged, forkJoin, map, mergeMap, of, pipe, share, shareReplay, skip, switchMap, take, tap, throttle, throttleTime, throwError, withLatestFrom, zip, } from 'rxjs';
 import { NormalizeNumberPipe } from '../common/pipes/normalize-number.pipe';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { RulesComponent } from '../common/dialogs/rules/rules.component';
 import { CardTypePipe } from "../common/pipes/card-type.pipe";
 
 @Component({
-    selector: 'app-game',
-    standalone: true,
-    templateUrl: './game.component.html',
-    styleUrl: './game.component.scss',
-    imports: [
-        CommonModule,
-        MatProgressBarModule,
-        MatCardModule,
-        CardComponent,
-        MatButtonModule,
-        MatDividerModule,
-        MatTableModule,
-        MatExpansionModule,
-        MatPaginatorModule,
-        NormalizeNumberPipe,
-        MatDialogModule,
-        CardTypePipe,
-    ]
+  selector: 'app-game',
+  standalone: true,
+  templateUrl: './game.component.html',
+  styleUrl: './game.component.scss',
+  imports: [
+    CommonModule,
+    MatProgressBarModule,
+    MatCardModule,
+    CardComponent,
+    MatButtonModule,
+    MatDividerModule,
+    MatTableModule,
+    MatExpansionModule,
+    MatPaginatorModule,
+    NormalizeNumberPipe,
+    MatDialogModule,
+    CardTypePipe,
+  ]
 })
 export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  
+
   private refreshSubject = new ReplaySubject<boolean>(1);
   private addRoundSubject = new ReplaySubject<CardRequest>(1);
   private changeSubject = new ReplaySubject<CardRequest>(1);
@@ -49,9 +49,11 @@ export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
   public getAccountShare$: Observable<AccountResponse>;
   public getGameShare$: Observable<GameResponse>;
   private sub = new Subscription();
+  private getAccount$: Observable<AccountResponse>;
+  private getGame$: Observable<GameResponse>;
 
-  public getAccount$: Observable<AccountResponse>;
-  public getGame$: Observable<GameResponse>;
+  public refreshGame$: Observable<GameResponse>;
+  public refreshAccount$: Observable<AccountResponse>;
   public roundTableDataSource$ = new Observable<MatTableDataSource<RoundResponse>>();
 
   public displayedColumns: string[] = ['roundNumber', 'previousBalance', 'total', 'change', 'type'];
@@ -66,22 +68,16 @@ export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
     this.gameId = sessionStorage.getItem('gameId') ?? '';
     this.accountId = sessionStorage.getItem('accountId') ?? '';
 
-    this.getGameShare$ = this.gameService.getGame({ id: this.gameId }).pipe(share());
-    this.getAccountShare$ = this.accountService.getAccount({ id: this.accountId }).pipe(share());
+    this.refreshGame$ = this.refreshSubject.pipe(switchMap(() => this.gameService.getGame({ id: this.gameId })));
+    this.refreshAccount$ = this.refreshSubject.pipe(switchMap(() => this.accountService.getAccount({ id: this.accountId })));
 
-    this.getGame$ = this.refreshSubject.pipe(
-      switchMap(() => this.getGameShare$)
-    )
-
-    this.getAccount$ = this.refreshSubject.pipe(
-      switchMap(() => this.getAccountShare$)
-    )
+    this.getGame$ = this.refreshGame$.pipe(shareReplay(1));
+    this.getAccount$ = this.refreshAccount$.pipe(shareReplay(1));
 
     this.sub.add(this.addRoundSubject.pipe(
       throttleTime(500),
-      tap((cardRequest) => this.changeSubject.next(cardRequest)),
-      switchMap((cardRequest) => this.getAccountShare$.pipe(map(response => { return { balance: response.balance, card: cardRequest } }))),
-      switchMap((response) => this.gameService.addNewRoundToGame({
+      switchMap((cardRequest) => this.accountService.getAccount({ id: this.accountId }).pipe(map(response => { return { balance: response.balance, card: cardRequest } }))),
+      switchMap((response) => forkJoin([this.gameService.addNewRoundToGame({
         body: {
           card: {
             type: response.card.type,
@@ -94,42 +90,50 @@ export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
           gameId: this.gameId,
           previousBalance: response.balance,
         }
-      })),
+      }),
+      of(response.card)
+      ])),
       tap(result => {
-        if (!result.gameContinued) {
+        if (!result[0].gameContinued) {
           sessionStorage.setItem('archived', '1');
           this.router.navigate(['summary']);
         }
       })
-    ).subscribe(() => this.updateState()));
+    ).subscribe((result) => {
+      this.refreshSubject.next(true);
+      this.changeSubject.next(result[1]);
+    }
+    ));
 
-    this.roundTableDataSource$ = this.getGame$.pipe(
-      map(game => {
-        const source = new MatTableDataSource<RoundResponse>();
-        source.data = game.rounds ?? [];
-        source.paginator = this.paginator;
-        return source;
-      }),
-      tap(source => {
-        source.data = source.data.sort((a, b) => {
-          return (a.roundNumber! > b.roundNumber! ? -1 : 1);
-        });
-        return source;
-      })
-    );
+    this.roundTableDataSource$ = this.refreshSubject.pipe(
+      switchMap(
+        () => this.gameService.getGame({ id: this.gameId }).pipe(
+          map(game => {
+            const source = new MatTableDataSource<RoundResponse>();
+            source.data = game.rounds ?? [];
+            source.paginator = this.paginator;
+            return source;
+          }),
+          tap(source => {
+            source.data = source.data.sort((a, b) => {
+              return (a.roundNumber! > b.roundNumber! ? -1 : 1);
+            });
+            return source;
+          })
+        )));
   }
 
   ngAfterContentInit(): void {
     this.openDialog();
-    this.updateState();
+    this.refreshSubject.next(true);
   }
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
   }
-  
-  getChange() : Observable<CardRequest> {
-    return this.changeSubject.asObservable();
+
+  getChange(): Observable<[CardRequest, AccountResponse]> {
+    return zip(this.changeSubject, this.getAccount$);
   }
 
   logout() {
@@ -147,9 +151,5 @@ export class GameComponent implements AfterContentInit, OnInit, OnDestroy {
       disableClose: true,
       width: window.innerWidth < 960 ? '100%' : '60%'
     })
-  }
-
-  updateState() {
-    this.refreshSubject.next(true);
   }
 }
