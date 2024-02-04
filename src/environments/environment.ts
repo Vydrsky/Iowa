@@ -1,3 +1,4 @@
 export const environment = {
-    api: 'https://iowaapi.azurewebsites.net'
+    production: false,
+    api: 'https://localhost:8000',
 };

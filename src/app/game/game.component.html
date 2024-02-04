@@ -10,7 +10,7 @@
                                     logowania</button>
                                 <button mat-raised-button color="secondary" (click)="openDialog()">Pokaż Zasady</button>
                             </div>
-                            <h1>Aktualnie posiadasz: <span style="color:green;">{{account.balance}}zł</span></h1>
+                            <h1>Aktualnie posiadasz: <span [style]="account.balance! > 0 ? 'color: green;' : 'color:red;'">{{account.balance}}zł</span></h1>
                             <ng-container *ngIf="getChange() | async as change; else placeholder">
                                 <div class="results">
                                     <h2><span style="color: green">Zyskano: {{change.first}}</span></h2>
