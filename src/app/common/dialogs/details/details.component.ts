@@ -88,11 +88,11 @@ export class DetailsComponent implements AfterContentInit, OnDestroy {
       if(key === 'id'){
 
       }
-      else if(key === 'type'){
-        result += this.cardTypePipe.transform(Number(obj[key])) + '\t';
-      }
       else if(key === 'won'){
         result += (obj[key] ? 'Tak' : 'Nie') + '\t'
+      }
+      else if(key === 'type'){
+        result += this.cardTypePipe.transform(Number(obj[key])) + '\t';
       }
       else{
         result += ((obj as {[x:string]:any})[key]).toString() + ',\t';
