@@ -11,6 +11,8 @@ import { AuthenticationResponse } from '../../generated/models';
 import { AsyncPipe, CommonModule, JsonPipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { LoadingComponent } from '../common/components/loading/loading.component';
+import { alphaNumValidator } from '../common/validators/alphanum-validator';
+import { endsWithTwoNumbersValidator } from '../common/validators/ends-with-two-numbers-validator';
 
 @Component({
   selector: 'app-login',
@@ -49,7 +51,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
-      userCode: ['', { validators: [Validators.required, Validators.minLength(5)], updateOn: "submit" }]
+      userCode: ['', { validators: [Validators.required, Validators.minLength(6), Validators.maxLength(6), alphaNumValidator(), endsWithTwoNumbersValidator()], updateOn: "submit" }]
     });
 
     this.sub.add(this.authSource.pipe(
@@ -73,7 +75,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   login() {
-    this.authSource.next(true);
+    if(this.loginForm.valid) {
+      this.authSource.next(true);
+    }
   }
 
   configureSession(response: AuthenticationResponse) {
