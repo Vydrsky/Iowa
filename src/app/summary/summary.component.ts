@@ -1,15 +1,18 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { AccountService, EvaluationService } from '../../generated/services';
-import { BehaviorSubject, Observable, ReplaySubject, Subscription, map, share, switchMap, take } from 'rxjs';
-import { CookieService } from 'ngx-cookie-service';
-import { AsyncPipe } from '@angular/common';
-import { EvaluationResponse } from '../../generated/models';
+import { ReplaySubject, Subscription, map, share, switchMap, take } from 'rxjs';
+import { AsyncPipe, CommonModule } from '@angular/common';
+import { EvaluationSummaryRangeResponse } from '../../generated/models';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-summary',
   standalone: true,
   imports: [
+    CommonModule,
+    MatTableModule,
     MatCardModule,
     AsyncPipe
   ],
@@ -18,11 +21,11 @@ import { EvaluationResponse } from '../../generated/models';
 })
 export class SummaryComponent implements OnInit {
 
-  private evaluationsSubject = new BehaviorSubject<boolean>(false);
-  private accountSubject = new BehaviorSubject<number>(0);
-  private percentAdvantageSubject = new ReplaySubject<number>(0);
-
-  private evaluations$: Observable<EvaluationResponse[]>
+  private sub = new Subscription();
+  private evaluationsSubject = new ReplaySubject<boolean>(1);
+  private accountSubject = new ReplaySubject<number>(1);
+  private percentAdvantageSubject = new ReplaySubject<any>(1);
+  private summaryRangeSubject = new ReplaySubject<MatTableDataSource<EvaluationSummaryRangeResponse>>(1);
 
   public get passed() {
     return this.evaluationsSubject.asObservable();
@@ -32,28 +35,61 @@ export class SummaryComponent implements OnInit {
     return this.accountSubject.asObservable();
   }
 
+  public get advantage() {
+    return this.percentAdvantageSubject.asObservable();
+  }
+
+  public get range() {
+    return this.summaryRangeSubject.asObservable();
+  }
+
+  public displayedColumns: string[] = ['name', 'accountBalance'];
+
   constructor(
     private evaluationService: EvaluationService,
     private accountService: AccountService) { }
 
   ngOnInit(): void {
 
-    this.evaluations$ = this.evaluationService.getAllEvaluations().pipe(take(1), share());
-
-    this.evaluations$.pipe(
+    this.sub.add(this.evaluationService.getAllEvaluations().pipe(
       map(response => response.find(e => e.userId == sessionStorage.getItem('userId'))?.isPassed ?? false)
     ).subscribe(response => {
       this.evaluationsSubject.next(response);
-    });
+    }));
 
-    this.accountService.getAccount({
+    this.sub.add(this.accountService.getAccount({
       id: sessionStorage.getItem('accountId') ?? ""
     }).pipe(
-      take(1),
       map(response => response.balance ?? 0)
     ).subscribe(response => {
       this.accountSubject.next(response);
-    });
+    }));
 
+    this.sub.add(this.evaluationService.getAllEvaluations().pipe(
+      map(response => response.find(e => e.userId == sessionStorage.getItem('userId'))),
+      switchMap(evaluation => this.evaluationService.getEvaluationPercentAdvantage({
+        id: evaluation?.id ?? ""
+      }))
+    ).subscribe(response => {
+      this.percentAdvantageSubject.next(response.advantage);
+    }))
+
+    this.sub.add(this.evaluationService.getAllEvaluations().pipe(
+      map(response => response.find(e => e.userId == sessionStorage.getItem('userId'))),
+      switchMap(evaluation => this.evaluationService.getEvaluationSummaryRange({
+        id: evaluation?.id ?? ""
+      })),
+      map(range => {
+        const source = new MatTableDataSource<EvaluationSummaryRangeResponse>();
+        source.data = range ?? [];
+        return source;
+      }),
+    ).subscribe(response => {
+      this.summaryRangeSubject.next(response);
+    }))
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }

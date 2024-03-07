@@ -9,6 +9,7 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
+import { EvaluationPercentAdvantageResponse } from '../models/evaluation-percent-advantage-response';
 import { EvaluationResponse } from '../models/evaluation-response';
 import { EvaluationSummaryRangeResponse } from '../models/evaluation-summary-range-response';
 import { getAllEvaluations } from '../fn/evaluation/get-all-evaluations';
@@ -66,7 +67,7 @@ export class EvaluationService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getEvaluationPercentAdvantage$Response(params: GetEvaluationPercentAdvantage$Params, context?: HttpContext): Observable<StrictHttpResponse<number>> {
+  getEvaluationPercentAdvantage$Response(params: GetEvaluationPercentAdvantage$Params, context?: HttpContext): Observable<StrictHttpResponse<EvaluationPercentAdvantageResponse>> {
     return getEvaluationPercentAdvantage(this.http, this.rootUrl, params, context);
   }
 
@@ -76,9 +77,9 @@ export class EvaluationService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getEvaluationPercentAdvantage(params: GetEvaluationPercentAdvantage$Params, context?: HttpContext): Observable<number> {
+  getEvaluationPercentAdvantage(params: GetEvaluationPercentAdvantage$Params, context?: HttpContext): Observable<EvaluationPercentAdvantageResponse> {
     return this.getEvaluationPercentAdvantage$Response(params, context).pipe(
-      map((r: StrictHttpResponse<number>): number => r.body)
+      map((r: StrictHttpResponse<EvaluationPercentAdvantageResponse>): EvaluationPercentAdvantageResponse => r.body)
     );
   }
 

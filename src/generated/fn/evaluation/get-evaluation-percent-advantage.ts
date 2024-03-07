@@ -6,12 +6,13 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { EvaluationPercentAdvantageResponse } from '../../models/evaluation-percent-advantage-response';
 
 export interface GetEvaluationPercentAdvantage$Params {
   id: string;
 }
 
-export function getEvaluationPercentAdvantage(http: HttpClient, rootUrl: string, params: GetEvaluationPercentAdvantage$Params, context?: HttpContext): Observable<StrictHttpResponse<number>> {
+export function getEvaluationPercentAdvantage(http: HttpClient, rootUrl: string, params: GetEvaluationPercentAdvantage$Params, context?: HttpContext): Observable<StrictHttpResponse<EvaluationPercentAdvantageResponse>> {
   const rb = new RequestBuilder(rootUrl, getEvaluationPercentAdvantage.PATH, 'get');
   if (params) {
     rb.path('id', params.id, {"style":"simple"});
@@ -22,7 +23,7 @@ export function getEvaluationPercentAdvantage(http: HttpClient, rootUrl: string,
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: parseFloat(String((r as HttpResponse<any>).body)) }) as StrictHttpResponse<number>;
+      return r as StrictHttpResponse<EvaluationPercentAdvantageResponse>;
     })
   );
 }
