@@ -9,6 +9,7 @@ export { CardRequest } from './models/card-request';
 export { CardResponse } from './models/card-response';
 export { CardType } from './models/card-type';
 export { EvaluationResponse } from './models/evaluation-response';
+export { EvaluationSummaryRangeResponse } from './models/evaluation-summary-range-response';
 export { GameResponse } from './models/game-response';
 export { ProblemDetails } from './models/problem-details';
 export { RoundResponse } from './models/round-response';

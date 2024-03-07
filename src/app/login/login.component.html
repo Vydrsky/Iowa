@@ -1,7 +1,10 @@
 <section>
     <form [formGroup]="loginForm" (ngSubmit)="login()" #form="ngForm" class="login-form" >
         <mat-card class="login-form-card">
-            <p>Proszę podać otrzymany kod, aby wziąć udział w badaniu.</p>
+            <p><b>Proszę podać utworzony na poprzedniej stronie kod, aby przystąpić do zadania.</b></p>
+            <p>Dla przypomnienia, ponownie podaję sposób utworzenia kodu:</p>
+            <p>Druga litera imienia, czwarta litera nazwiska, ostatnia litera nazwiska, przedostatnia litera imienia, dzień urodzenia
+                Jeśli w Pana/i nazwisku brak jest wystarczjącej ilości liter (np. Bąk - ma 3 litery, a do kodu potrzebna jest 4. litera), proszę wstawić "0" zamiast tej litery.</p>
             <mat-form-field>
                 <mat-label>Kod</mat-label>
                 <input matInput type="text" formControlName="userCode" [class.invalid]="loginForm.get('userCode')?.invalid">

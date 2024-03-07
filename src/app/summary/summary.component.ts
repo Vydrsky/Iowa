@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { AccountService, EvaluationService } from '../../generated/services';
-import { BehaviorSubject, map, take } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subscription, map, share, switchMap, take } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { AsyncPipe } from '@angular/common';
+import { EvaluationResponse } from '../../generated/models';
 
 @Component({
   selector: 'app-summary',
@@ -19,6 +20,9 @@ export class SummaryComponent implements OnInit {
 
   private evaluationsSubject = new BehaviorSubject<boolean>(false);
   private accountSubject = new BehaviorSubject<number>(0);
+  private percentAdvantageSubject = new ReplaySubject<number>(0);
+
+  private evaluations$: Observable<EvaluationResponse[]>
 
   public get passed() {
     return this.evaluationsSubject.asObservable();
@@ -29,14 +33,16 @@ export class SummaryComponent implements OnInit {
   }
 
   constructor(
-    private evaluationService: EvaluationService, 
-    private accountService: AccountService) {}
+    private evaluationService: EvaluationService,
+    private accountService: AccountService) { }
 
   ngOnInit(): void {
-    this.evaluationService.getAllEvaluations().pipe(
-      take(1),
+
+    this.evaluations$ = this.evaluationService.getAllEvaluations().pipe(take(1), share());
+
+    this.evaluations$.pipe(
       map(response => response.find(e => e.userId == sessionStorage.getItem('userId'))?.isPassed ?? false)
-      ).subscribe(response => {
+    ).subscribe(response => {
       this.evaluationsSubject.next(response);
     });
 
@@ -45,9 +51,9 @@ export class SummaryComponent implements OnInit {
     }).pipe(
       take(1),
       map(response => response.balance ?? 0)
-    ).subscribe(response =>{
+    ).subscribe(response => {
       this.accountSubject.next(response);
-    })
-  }
+    });
 
+  }
 }
