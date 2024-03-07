@@ -1,7 +1,7 @@
 <mat-card class="summary selectable">
     <mat-card-content>
         <h1>Końcowy stan konta: {{(balance | async)}}zł</h1>
-        <h1>Wynik wyższy niż {{advantage | async}}% innych użytkowników</h1[matColumnDef]="">
+        <h1>Wynik wyższy niż {{advantage | async}}% innych użytkowników</h1>
         <ng-container *ngIf="range | async as tableData">
             <table *ngIf="tableData.data.length > 0" mat-table [dataSource]="tableData">
                 <ng-container matColumnDef="name">
