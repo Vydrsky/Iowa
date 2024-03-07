@@ -7,6 +7,7 @@ import { ApiModule } from '../generated/api.module';
 import { HttpErrorInterceptor } from './common/interceptors/http-error.interceptor';
 import { provideToastr } from 'ngx-toastr';
 import { JwtTokenInterceptor } from './common/interceptors/jwt-token.interceptor';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,7 +26,7 @@ export const appConfig: ApplicationConfig = {
       useClass: JwtTokenInterceptor,
       multi: true
     },
-    importProvidersFrom(ApiModule.forRoot({ rootUrl: "https://localhost:8000" })),
+    importProvidersFrom(ApiModule.forRoot({ rootUrl: environment.api })),
     provideToastr({
       maxOpened: 1,
       autoDismiss: true
