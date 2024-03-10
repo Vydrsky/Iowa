@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    api: 'https://iowaapi.azurewebsites.net'
+    api: 'https://iowa-api.azurewebsites.net'
 };
