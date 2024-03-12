@@ -123,6 +123,7 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
       this.getData(),
       map((evaluationRecords) => {
         const source = new MatTableDataSource<EvaluationRecord>();
+        evaluationRecords = this.setupRecordsDate(evaluationRecords);
         source.data = evaluationRecords;
         this.allDataSource.next(evaluationRecords);
         source.paginator = this.paginator;
@@ -155,7 +156,6 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
       map(() => this.filterData(this.allDataSource.value)),
       map(records => {
         const source = new MatTableDataSource<EvaluationRecord>();
-        records = this.setupRecordsDate(records);
         source.data = records;
         source.paginator = this.paginator;
         source.sort = this.sort;
