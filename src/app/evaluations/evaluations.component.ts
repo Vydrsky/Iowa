@@ -25,7 +25,7 @@ registerLocaleData(localePl);
   standalone: true,
   providers: [
     { provide: LOCALE_ID, useValue: "pl-PL" },
-    { provide: MatPaginatorIntl, useValue: CustomPaginator()}
+    { provide: MatPaginatorIntl, useValue: CustomPaginator() }
   ],
   templateUrl: './evaluations.component.html',
   styleUrl: './evaluations.component.scss',
@@ -83,13 +83,14 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
             .push(this.userService
               .getUser({ id: evaluation.userId ?? '' })
               .pipe(map((user) => {
-                return { 
-                  userCode: user.userCode, 
-                  evaluationDate: evaluation.evaluationDate, 
-                  id: evaluation.id, 
-                  accountId: user.accountId, 
+                return {
+                  userCode: user.userCode,
+                  evaluationDate: evaluation.evaluationDate,
+                  id: evaluation.id,
+                  accountId: user.accountId,
                   isPassed: evaluation.isPassed,
-                  gameId: user.gameId }
+                  gameId: user.gameId
+                }
               })))
         })
         return forkJoin(evaluationsWithUsers);
@@ -154,6 +155,7 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
       map(() => this.filterData(this.allDataSource.value)),
       map(records => {
         const source = new MatTableDataSource<EvaluationRecord>();
+        records = this.setupRecordsDate(records);
         source.data = records;
         source.paginator = this.paginator;
         source.sort = this.sort;
@@ -169,7 +171,17 @@ export class EvaluationsComponent implements OnInit, OnDestroy {
         label: record.userCode
       },
       maxHeight: '90vh',
-      
+
+    });
+  }
+
+  private setupRecordsDate(records: EvaluationRecord[]): EvaluationRecord[] {
+    return records.map(record => {
+      var utcDate = new Date(record.evaluationDate)
+      var offset = utcDate.getTimezoneOffset() / 60;
+      var hours = utcDate.getHours();
+      record.evaluationDate = utcDate.setHours(hours - offset).toString();
+      return record;
     });
   }
 }
